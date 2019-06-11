@@ -1,0 +1,145 @@
+===== Nested Packages ======
+package com.icici.loan
+class Personal{
+ override def toString = "ICICI Personal Loan"
+}
+object PackageTests1 extends App{
+ println(new Personal)
+}
+C:\Users\Mohammed Ali\Desktop\scalafiles>scalac Personal.scala
+C:\Users\Mohammed Ali\Desktop\scalafiles>scala com.icici.loan.PackageTests1
+ICICI Personal Loan
+-----------------
+package com.icici.loans{
+class Personal{
+ override def toString = "ICICI Personal Loan"
+}
+}
+object PackageTests extends App{
+ println(new com.icici.loans.Personal)
+}
+C:\Users\Mohammed Ali\Desktop\scalafiles>scalac PackageTests.scala
+C:\Users\Mohammed Ali\Desktop\scalafiles>scala PackageTests
+ICICI Personal Loan
+--------------
+package com.icici{
+	package loan{
+		class Personal{
+			override def toString="ICICI Personal Loan"
+		}
+		class Home{
+			override def toString="ICICI Home Loan"
+		}
+	}
+	package banking{
+		class Personal{
+			override def toString="ICICI Personal Banking"
+		}
+		class Corporate{
+			override def toString="ICICI Corporate Banking"
+		}
+	}
+}
+object PackageTest1 extends App{
+	import com.icici.loan.Home
+	println(new com.icici.loan.Personal)
+	println(new Home)
+	println(new com.icici.banking.Personal)
+	println(new com.icici.banking.Corporate)
+}
+C:\Users\Mohammed Ali\Desktop\scalafiles>scalac PackageTests1.scala
+
+C:\Users\Mohammed Ali\Desktop\scalafiles>dir
+ Volume in drive C has no label.
+ Volume Serial Number is 9478-9AEB
+
+ Directory of C:\Users\Mohammed Ali\Desktop\scalafiles
+07-06-2019  13:12    <DIR>          com
+07-06-2019  13:12             2,713 PackageTest1$.class
+07-06-2019  13:12               740 PackageTest1$delayedInit$body.class
+07-06-2019  13:12               797 PackageTest1.class
+07-06-2019  13:12               569 PackageTests1.scala
+
+C:\Users\Mohammed Ali\Desktop\scalafiles>scala PackageTest1
+ICICI Personal Loan
+ICICI Home Loan
+ICICI Personal Banking
+ICICI Corporate Banking
+--------------
+scala> import java.util.Date
+import java.util.Date
+
+scala> var dt=new Date()
+dt: java.util.Date = Fri Jun 07 19:38:23 IST 2019
+
+scala> import java.util.{Date=>javaDate}
+import java.util.{Date=>javaDate}
+
+scala> var dt=new javaDate()
+dt: java.util.Date = Fri Jun 07 19:39:26 IST 2019
+-------------- Multiple class import and rename
+scala> import java.util.{Date=> javaDate, HashMap=>javaHashMap}
+import java.util.{Date=>javaDate, HashMap=>javaHashMap}
+
+scala> var dt = new javaDate()
+dt: java.util.Date = Fri Jun 07 19:44:34 IST 2019
+
+scala> var dt3 = new javaHashMap()
+dt3: java.util.HashMap[Nothing,Nothing] = {}
+--------- rename a method name while importing
+scala> import System.out.{println=>p}
+import System.out.{println=>p}
+
+scala> p("Hello")
+Hello
+---- Hiding a class during import
+While importing a packge and during import we can hide class inthat package. 
+exaple: while importing java.util package, we can hide HashSet
+scala> import java.util.{HashSet=>_,_}
+import java.util.{HashSet=>_, _}
+
+scala> var v = new HashSet()
+<console>:14: error: not found: type HashSet
+       var v = new HashSet()
+                   ^
+
+scala> val v1= new java.util.HashSet() //Fully qualified imports will always work.
+v1: java.util.HashSet[Nothing] = []
+
+- To hide multiple packages:
+scala> import java.util.{HashSet=>_, HashMap=>_, ArrayList=>_,_}
+import java.util.{HashSet=>_, HashMap=>_, ArrayList=>_, _}
+
+scala> var v = new HashSet()
+<console>:14: error: not found: type HashSet
+       var v = new HashSet()
+                   ^
+
+scala> var v = new HashMap()
+<console>:14: error: not found: type HashMap
+       var v = new HashMap()
+                   ^
+
+scala> var v = new ArrayList()
+<console>:14: error: not found: type ArrayList
+       var v = new ArrayList()
+                   ^
+--- Static Import ( for an static methods we can directly call by method)
+example: getInstance() is an static method of abstract class calendar.
+scala> val cal = Calendar.getInstance()
+cal: java.util.Calendar = java.util.GregorianCalendar[time=1559918004150,areFieldsSet=true,areAllFieldsSet=true,leni
+ent=true,zone=sun.util.calendar.ZoneInfo[id="Asia/Calcutta",offset=19800000,dstSavings=0,useDaylight=false,transitio
+ns=7,lastRule=null],firstDayOfWeek=1,minimalDaysInFirstWeek=1,ERA=1,YEAR=2019,MONTH=5,WEEK_OF_YEAR=23,WEEK_OF_MONTH=
+2,DAY_OF_MONTH=7,DAY_OF_YEAR=158,DAY_OF_WEEK=6,DAY_OF_WEEK_IN_MONTH=1,AM_PM=1,HOUR=8,HOUR_OF_DAY=20,MINUTE=3,SECOND=
+24,MILLISECOND=150,ZONE_OFFSET=19800000,DST_OFFSET=0]
+
+scala> import java.util.Calendar._
+import java.util.Calendar._
+
+scala> val cal=getInstance()
+cal: java.util.Calendar = java.util.GregorianCalendar[time=1559918045940,areFieldsSet=true,areAllFieldsSet=true,leni
+ent=true,zone=sun.util.calendar.ZoneInfo[id="Asia/Calcutta",offset=19800000,dstSavings=0,useDaylight=false,transitio
+ns=7,lastRule=null],firstDayOfWeek=1,minimalDaysInFirstWeek=1,ERA=1,YEAR=2019,MONTH=5,WEEK_OF_YEAR=23,WEEK_OF_MONTH=
+2,DAY_OF_MONTH=7,DAY_OF_YEAR=158,DAY_OF_WEEK=6,DAY_OF_WEEK_IN_MONTH=1,AM_PM=1,HOUR=8,HOUR_OF_DAY=20,MINUTE=4,SECOND=
+5,MILLISECOND=940,ZONE_OFFSET=19800000,DST_OFFSET=0]
+

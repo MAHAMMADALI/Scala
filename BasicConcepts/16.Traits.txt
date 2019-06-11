@@ -1,0 +1,454 @@
+scala> trait Calculator{
+     |  def add
+     |  def mul(num1:Int, num2: Int)
+     |  def sub()
+     |  def divide(){
+     |   println("Divide method called")
+     |  }
+     | }
+defined trait Calculator
+scala> abstract class CalculatorImp extends Calculator
+defined class CalculatorImp
+Class Extending A class and multiple Traits:
+scala> class class1
+defined class class1
+
+scala> trait Trait1
+defined trait Trait1
+
+scala> trait Trait2
+defined trait Trait2
+
+scala> class CalculatorImpl extends class1 with Trait1 with Trait2
+defined class CalculatorImpl
+scala> trait Trait3
+
+defined trait Trait3
+scala> class MyClass extends Trait1 with Trait2 with Trait3
+defined class MyClass
+
+-------
+trait Calculator{
+ def add
+ def mul(num1:Int, num2:Int)
+ def sub()
+ def divide(){
+  println("Division  method is called")
+ }
+}
+class CalculatorImpl extends Calculator{
+ def add(){
+  println("addition is called")
+ }
+ def mul(x:Int, y:Int):Unit={
+  println(s"$x * $y = ${x*y}")
+ }
+ def sub(){
+  println("subtraction called")
+ }
+}
+object TraitExample1{
+ def main(args: Array[String]){
+  val obj=new CalculatorImpl()
+  obj.add()
+  obj.mul(5,10)
+  obj.sub()
+  obj.divide()
+ }
+}
+C:\Users\Mohammed Ali\Desktop\scalafiles>scalac TraitExample1.scala
+C:\Users\Mohammed Ali\Desktop\scalafiles>scala TraitExample1
+addition is called
+5 * 10 = 50
+subtraction called
+Division  method is called
+-----------
+abstract class Calculator{
+ def add
+ def mul(num1:Int, num2:Int)
+ def sub()
+ def divide(){
+  println("Division not supported ")
+ }
+}
+trait SquareAndCube{
+ def square(num:Int):Unit={
+  println(s"$num ^2 = ${num*num}")
+ }
+ def cube(num:Int):Int
+}
+trait Trignometry{
+ def sin(num:Int):Unit={
+  println(s"sin of $num=...")
+ }
+ def cos(num:Int):Unit={
+  println(s"cos of $num=...")
+ }
+}
+class CalculatorImpl extends Calculator with SquareAndCube with Trignometry{
+ def cube(num:Int):Int={
+  println("cube")
+  0
+ }
+ def add=println("addition is called")
+ def mul(x:Int,y:Int):Unit={
+  println(s"$x * $y= ${x*y}")
+ }
+ def sub(){
+  println("Sub called")
+ }
+}
+object TraitExample2{
+ def main(args:Array[String]){
+  val obj = new CalculatorImpl
+  obj.add //don't give () else get error
+  obj.mul(5,10)
+  obj.sub()
+  obj.divide()
+  obj.square(3)
+  obj.cube(5)
+  obj.sin(10)
+  obj.cos(15)
+}
+}
+C:\Users\Mohammed Ali\Desktop\scalafiles>scalac TraitExample2.scala
+C:\Users\Mohammed Ali\Desktop\scalafiles>scala TraitExample2
+addition is called
+5 * 10= 50
+Sub called
+Division not supported
+3 ^2 = 9
+cube
+sin of 10=...
+cos of 15=...
+---------
+trait Employee{
+  def salary()={
+    println("10000")
+   }
+   def hikes
+   def timings{
+     println(" 10 to 6")
+    }
+}
+class AppleEmp extends Employee{
+  override def hikes{ //override not mandatory here
+    println("20%")
+   }
+  }
+class TCSEmp extends Employee{
+    def hikes{
+      println("10%")
+     }
+     override def timings{ //override mandatory here
+       println("10-7")
+      }
+}
+object TraitsExample{
+	def main(args:Array[String]):Unit={
+		val appleEmp= new AppleEmp
+		appleEmp.hikes
+		appleEmp.salary
+		appleEmp.timings
+
+		val tcsEmp= new AppleEmp
+		tcsEmp.hikes
+		tcsEmp.salary
+		tcsEmp.timings
+	}
+}
+C:\Users\Mohammed Ali\Desktop\scalafiles>scalac TraitsExample.scala
+C:\Users\Mohammed Ali\Desktop\scalafiles>scala TraitsExample
+20%
+10000
+ 10 to 6
+20%
+10000
+ 10 to 6
+------------- A Class with 2 traits with a common method: ------------
+trait A{
+	def sayHello1()
+	def sayHello2()={
+		println("A.Hello2")
+	}
+}
+trait B{
+	def sayHello1()
+	def sayHello2()={
+		println("B.hello2")
+	}
+}
+class C extends A with B{
+	def sayHello1()={
+		println("C.sayHello1")
+	}
+}
+object TraitExample3{
+	def main(args:Array[String]){
+		val c=new C()
+		c.sayHello1
+		c.sayHello2
+	}
+}
+C:\Users\Mohammed Ali\Desktop\scalafiles>scalac TraitExample3.scala
+TraitExample3.scala:13: error: class C inherits conflicting members:
+  method sayHello2 in trait A of type ()Unit  and
+  method sayHello2 in trait B of type ()Unit
+(Note: this can be resolved by declaring an override in class C.)
+class C extends A with B{
+      ^
+one error found
+- Result: It will give you compile time error, as compiler is confused which sayHello2() will be overridden in class C.
+- Solution: we must override sayHello2() in class C so that the confusion will be over and always our overridden sayHello2() will be used.
+Add the below piece of code in Class C
+override def sayHello2()={ println("c.sayHello2") }
+object TraitExample3{
+ def main(args:Array[String]){
+         val c=new C()
+         c.sayHello1
+         c.sayHello2	 }}
+defined trait A
+defined trait B
+defined class C
+defined object TraitExample3
+Since now, we have overridden sayHello2() in class C, there is no confusion which will be called.
+------
+trait A{
+  def sayHello1()
+  def sayHello2()={ println("A.sayHello2")  }
+}
+trait B{
+  def sayHello1()
+  def sayHello2()={ println("B.sayHello2")  }
+}
+class C extends A with B{
+  def sayHello1()={ println("C.sayHello1")  }
+  override def sayHello2()={ 
+    println("C.sayHello12")
+    super.sayHello2
+  }
+}
+object TraitExample3{
+  def main(args:Array[String]){
+    val c=new C()
+    c.sayHello1
+    c.sayHello2
+  } }
+Note: we have used super.sayHello2 to call the parent sayHello2().
+C.sayHello1
+c.sayHello2
+B.sayHello2
+How did it know that B.sayHello2() should be called and not A.sayHello2. 
+Let's explore a bit more: 
+Change the class C declaration from: [class C extebds A with B] to 
+[class C extebds B with A] see the output now:
+C.sayHello1
+C.sayHello2
+A.sayHello2   //so, the observation is clear.
+--------------- What will be the output of the below code:
+trait A{
+	def sayHello1()
+	def sayHello2()={println("A.sayHello2")}
+	def sayHello3()={println("A.sayHello3")} }
+trait B{
+	def sayHello1()
+	def sayHello2()={println("B.sayHello2")}
+	def sayHello3() }
+class C extends A with B{
+	def sayHello1()={println("C.sayHello1")}
+	override def sayHello2()={println("C.sayHello2")}  }
+object TraitExample4{
+	def main(args:Array[String]){
+		val c=new C()
+		c.sayHello1
+		c.sayHello2
+		c.sayHello3
+	}  }  C:\Users\Mohammed Ali\Desktop\scalafiles>scalac TraitExample4.scala
+C:\Users\Mohammed Ali\Desktop\scalafiles>scala TraitExample4
+C.sayHello1 
+C.sayHello2
+A.sayHello3
+-------- What is Trait Mixin?
+When traits and classes are mixed and used inthe similar way we call it trait minin. Example:
+trait A{
+	def sayHello1()
+	def sayHello2()={println("A.sayHello2")}
+	def sayHello3()={println("A.sayHello3")}		}
+trait B{
+	def sayHello1()
+	def sayHello2()={println("B.sayHello2")}
+	def sayHello3()		}
+class C extends A with B{
+	def printEverything()={
+		sayHello1
+		super[A].sayHello2
+		super[B].sayHello2
+	}
+	override def sayHello1()={println("C.sayHello1")}
+	override def sayHello2()={println("C.sayHello2")}		}
+object TraitExample5{
+	def main(args:Array[String]){
+		val c=new C()
+		c.sayHello1
+		c.sayHello2
+		c.sayHello3
+c.printEverything
+	}	}	/* C:\Users\Mohammed Ali\Desktop\scalafiles>scalac TraitExample5.scala
+C:\Users\Mohammed Ali\Desktop\scalafiles>scala TraitExample5
+C.sayHello1
+C.sayHello2
+A.sayHello3 
+C.sayHello1
+A.sayHello2
+B.sayHello2*/
+
+Limiting which class can use a trait by Inheritance
+scala> trait B
+defined trait B
+scala> class C extends B
+defined class 
+In the above example we have trait B which is extended by class C. The trait B can be extended by any class and there is no restriction onit.
+However, it your requirement is you don't want trait B to be extended by anyone. But can be extended only by those who are the child of class A.
+scala> class A
+scala> trait B extends A
+scala> class C extends A with B
+Here we defined Class A, and we made our trait B extending class A. 
+Which clearly means the trait B can be extended only by those class who are child of class A.
+Since class C is extending class A, it will be able to inherit trait B.
+class D extends B
+This is still allowed since D is just inheriting the trait B
+However, the below is not allowed. Because trait B is allowed to use only if class D extends A.
+or class D doesn't extend any class as shown above.
+
+scala> class A
+scala> trait B extends A
+scala> class D extends B
+scala> class C
+scala> class D extends C with B
+<console>:13: error: illegal inheritance; superclass C
+ is not a subclass of the superclass A
+ of the mixin trait B
+       class D extends C with B
+
+Class D can extend a trait B independently, irrespective of whther itis the child of A or not. However, if class D extends any other class which is not a child of A, then itcannot extend Trait B.  The Below Code Words:
+scala> class A
+scala> trait B extends A
+scala> class C extends A
+scala> class D extends C with B
+Let's Take an example: We LIChave LICEmployees who are permanent to
+scala> abstract class LIC
+scala> class corpoEmp extends LIC
+scala> class AgentEmp extends LIC
+It is the AgentEmployee who basically enrolls customers and not the corpoEmp
+scala>trait CustomerEmrollment extends AgentEmp
+you can define a class RelationshipManager who is basically appointed by Agent to visit customers and enroll
+scala> class RelatioshipManager extends AgentEmp with CustomerEmrollment
+
+The trait CustltomerEnrollment can only be mixed into the class which is the child of AgentEmp.
+scala>class RelationshipManager extends AgentEmp with CustomerEmrollment
+The trait Customer Enrollment can only be mixed into the class which is the child of AgentEmployee.
+now, HRManager is a part of CorporatEemployee and will never goout to enroll the customer.
+scala> class HRManager extends corpoEmp with CustomerEmrollment
+<console>:13: error: illegal inheritance; superclass corpoEmp
+ is not a subclass of the superclass AgentEmp
+ of the mixin trait CustomerEmrollment
+       class HRManager extends corpoEmp with CustomerEmrollment
+                                             ^
+------
+scala> class B
+scala> trait A{    this:B => //more code here ....   }
+It means trait A can be used only by the classes who will be extending class B
+scala> class C extends B with A
+However, the below is not valid.
+scala> class C extends B with A
+scala> class D
+scala> class E extends D with A
+<console>:13: error: illegal inheritance;
+ self-type E does not conform to A's selftype A with B
+       class E extends D with A
+                              ^
+However, this is also not valid, which was valid inprevious approach.
+
+scala> class F extends A
+<console>:12: error: illegal inheritance;
+ self-type F does not conform to A's selftype A with B
+       class F extends A
+                       ^
+The above approach is called selfType approach.
+scala> class A
+scala> trait B
+scala> trait C
+scala> trait D{this: A with B with C => } The above expression now means, D can be extended onlyby the class, who is the subclass of A,B and C
+class E extends A with D with B with C
+The below code will fail, because it didnot extend C
+scala> class E extends A with D with B
+<console>:14: error: illegal inheritance;
+ self-type E does not conform to D's selftype D with A with B with C
+       class E extends A with D with B
+                              ^
+----------------
+class Icecream{ println("Icecream object created")}
+trait Vanilla { println("vanilla Flavour Added....")}
+trait Chocolate{ println("Chocolate Flavour Added....")}
+object TraitExample6{
+	def main(args:Array[String] ) = {
+		val vanillaIcecream=new Icecream with Vanilla
+		val chocolateIcecrea=new Icecream with Chocolate
+		val chocoVanillaIcecream = new Icecream with Chocolate with Vanilla
+	}	}
+/* C:\Users\Mohammed Ali\Desktop\scalafiles>scalac TraitExample6.scala
+C:\Users\Mohammed Ali\Desktop\scalafiles>scala TraitExample6.scala
+Icecream object created
+vanilla Flavour Added....
+Icecream object created
+Chocolate Flavour Added....
+Icecream object created
+Chocolate Flavour Added....
+vanilla Flavour Added....  */
+
+class Icecream{ println("Icecream object created")}
+	trait Vanilla { 
+		println("vanilla Flavour Added....")
+		def percentage(num:Int):Unit={	println(s"$num % of Vanilla mixed")  }
+	}
+trait Chocolate{ println("Chocolate Flavour Added....")}
+
+object TraitExample7{
+	def main(args:Array[String] ) = {
+		val vanillaIcecream=new Icecream with Vanilla
+		val chocolateIcecrea=new Icecream with Chocolate
+		val chocoVanillaIcecream = new Icecream with Chocolate with Vanilla
+		chocoVanillaIcecream.percentage(20)
+	}	}
+/* C:\Users\Mohammed Ali\Desktop\scalafiles>scalac TraitExample7.scala
+C:\Users\Mohammed Ali\Desktop\scalafiles>scala TraitExample7.scala
+Icecream object created
+vanilla Flavour Added....
+Icecream object created
+Chocolate Flavour Added....
+Icecream object created
+Chocolate Flavour Added....
+vanilla Flavour Added....
+20 % of Vanilla mixed  */
+Using JAVA interface as a Trait: Create a .java file and add below interfaces toit.
+A.java
+interface A { default public void m1(){ System.out.println("m1 from A");}}
+interface B { default public void m2(){ System.out.println("m2 from B");}}
+interface C { default public void m3(){ System.out.println("m3 from C");}}
+Compile A.java : javac A.java will create 3 .class files, A.class,B.class,C.class
+Now create an Scala Obj  call those interface and compile and run.  
+object TraitExample8 extends A with B with C{
+	def main(args:Array[String] ) = {
+		m1()
+		m2()
+		m3()
+	}
+}
+/C:\Users\Mohammed Ali\Desktop\scalafiles>scalac TraitExample8.scala
+C:\Users\Mohammed Ali\Desktop\scalafiles>scala TraitExample8
+m1 from A
+m2 from B
+m3 from C  */
+--------------- xxxxxxxxx-----------------
+
+
