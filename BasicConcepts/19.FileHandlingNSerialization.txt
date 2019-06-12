@@ -1,0 +1,221 @@
+====== IO Operations =========
+scala> val input = scala.io.StdIn.readLine
+input: String = 12 34
+
+scala> val nums = input.split(" ")
+nums: Array[String] = Array(12, 34)
+
+scala> println(s"U Entered ${nums(0)} and ${nums(1)}")
+U Entered 12 and 34
+---------- Using JAVA Scanner pkg ---------------
+scala> val scanner = new java.util.Scanner(System.in)
+scanner: java.util.Scanner = java.util.Scanner[delimiters=\p{javaWhitespace}+][position=0][
+nput=false][source closed=false][skipped=false][group separator=\,][decimal separator=\.][p
+ prefix=\Q-\E][positive suffix=][negative suffix=][NaN string=\Q?\E][infinity string=\Q?\E]
+
+scala> println("Enter 2 nums")
+Enter 2 nums
+
+scala> val input = scanner.nextLine()
+input: String = 45 67
+
+scala> val nums =input.split(" ")
+nums: Array[String] = Array(45, 67)
+
+scala> println(s"U have entered ${nums(0)} and ${nums(1)}")
+U have entered 45 and 67
+---------- Reading a file ------------------
+Source.fromFile() returns a BufferedSource,  getLines starts scanning the whole BufferedSource and treats \n and \r as the Line separator.
+Hence, it constructs the iterator out of it.
+The getLines method returns an Iterator[String], which provides one line on each iteration, excluding the en-of-line character.
+Every time you open the file, it has to close properly
+scala> import scala.io.Source
+import scala.io.Source
+scala> val bufferedSource = Source.fromFile("F:\\links.txt")
+bufferedSource: scala.io.BufferedSource = <iterator>
+scala> for(line <- bufferedSource.getLines()){ println(line) }
+https://eu-i.serviceportal.hp.com/enote/Default.aspx
+http://103.66.48.2/userportal/newlogin.do
+https://spark.apache.org/docs/1.6.3/
+https://spark.apache.org/docs/2.1.1/index.html
+https://www.dezyre.com/
+https://data-flair.training/blogs/why-should-i-learn-python/
+http://www.quranflash.com/books/Medina1/?en#sthash.F4eE5HvM.dpbs
+https://www.madinaharabic.com/Arabic_Reading_Course/Lessons/L000_001.html
+https://docs.scala-lang.org/overviews/collections/overview.html
+scala> bufferedSource.close
+------------- Managing FileNotFoundException ---------------
+scala> import java.io.{FileNotFoundException, IOException}
+import java.io.{FileNotFoundException, IOException}
+scala> try{ for(line <- Source.fromFile("D:\\FileNotFound").getLines){ println(line) }} 
+       catch{ case e: FileNotFoundException => println("couldn't find that file.")
+                 case e: IOException => println("Fot an IOException!") }
+Output: couldn't find that file.
+
+WAP to define a method that returns you content of file or None if Something goes wrong.
+import scala.io.Source
+import scala.collection.mutable.ListBuffer
+
+object Demo{
+  def readTextFile(filename: String):Option[List[String]] = {
+    try{
+      var content = ListBuffer[String]()
+      for(line <- Source.fromFile(filename).getLines){
+        content += line
+      }
+      Some(content.toList)
+    }catch { case e: Exception => None }
+  }
+  def main(args: Array[String]): Unit = {
+    val content = readTextFile("F:\\links.txt")
+    val contentList=content.get
+    content.foreach{lines => lines.foreach(println)}   }
+}
+----------------- Using PrintWriter  -----------
+scala> import java.io._
+scala> val outputFile=new File("d:\\read.txt")
+outputFile: java.io.File = d:\read.txt
+scala> val out = new PrintWriter(outputFile)
+out: java.io.PrintWriter = java.io.PrintWriter@43296744
+scala> out.write("Hello World")
+scala> out.write("\n Welcome to Scala")
+scala> out.close
+----------- Using FileWriter -----------------
+scala> import java.io._
+scala> val outputfile = new File("f:\\readme2.txt")
+outputfile: java.io.File = f:\readme2.txt
+scala> val out = new FileWriter(outputfile)
+out: java.io.FileWriter = java.io.FileWriter@253359b0
+scala> val bw = new BufferedWriter(out)   //one extra step w.r.t PrintWriter
+bw: java.io.BufferedWriter = java.io.BufferedWriter@7457bfac
+scala> bw.write("Hello World")
+scala> bw.write("\n welccome to Scala")
+scala> bw.close
+---------------- Notes ------------
+In Both the cases, if you dont close the stream, the data will not be written in to the file.
+FileWriter is the character representation of IO. That means it can be used to write characters.
+Internally FileWrter would use the default character set of the underlying OS and convert the characters to bytes and write it to the disk.
+--------- FileInputStream & FileOutputStream -------------------
+import java.io._
+object ReadAndWrite {
+	def main(args:Array[String] ) = {
+		try{
+			val input = new FileInputStream("F:\\readme2.txt")
+			val output = new FileOutputStream("F:\\readme.txt")
+			var c =0
+			while ( { c = input.read; c != -1 }){  output.write(c)  }
+		} catch{ case e: IOException => e.printStackTrace } 
+		finally { println("Entred Finally....") }	}	}
+
+----------- Reading Char by char -----------------
+scala> val source = io.Source.fromFile("F:\\readme2.txt")
+source: scala.io.BufferedSource = <iterator>
+scala> for(char <- source){ print(char)  }
+Hello World
+ welcome to Scala
+Lets read this file....
+scala> source.close
+----------- Reading Line by Line -----------------
+scala> val source = io.Source.fromFile("F:\\readme2.txt")
+source: scala.io.BufferedSource = <iterator>
+scala> for(line <- source.getLines){ print(line)  }
+Hello World
+ welcome to Scala
+Lets read this file....
+scala> source.close
+----------------- ----------------- -----------------
+ WAP to process the file emp1.txt and get total Salary paid:
+import java.io._
+object ReadAndWrite {
+	def main(args:Array[String] ) = {
+			val source  = io.Source.fromFile("F:\\emp1.txt")
+			var totalSalary:Int =0
+			for( line <- source.getLines){
+				val salary = line.split(",")(2).toInt
+				totalSalary += salary
+			}
+			println(s"total Salary = ${totalSalary}" )
+			source.close		}}
+----------------- Dealing with files with header: removing the hearder from the emp1.txt file.
+import java.io._
+object ReadAndWrite {
+	def main(args:Array[String] ) = {
+			val source  = io.Source.fromFile("F:\\emp1.txt")
+			for( line <- source.getLines.drop(1)){
+				val Array(empid,name,salary) = line.split(",")
+			println(s"EmpID = $empid , EmpName= $name , EmpSal = $salary" )	
+			}		
+		source.close		}	}
+----------------- -----------------
+fromFile: val file = io.Source.fromFile("d:\\emp1.txt")
+the above code, will point to the file and when operated, will start reading the file.
+for(line <- file.getLines){ println(line)}
+
+fromString: val file = io.Source.fromString("d:\\emp1.txt")
+the above code, will just read the content that you passed as a string and not a file.
+scala> for(line <- file.getLines){ println(line)}
+d:\emp1.txt
+----------------- Serialization ----------------- -----------------
+Steps:
+1. Make your Employee class extending Serializable and define a SerialVersionUID, IO package is needed to use OutputStream
+2. Create the object of Employee class
+3. Create an ObjectOutputStream specifying the filename where the object will be serialized & write the employee object toit. Finally closed the outputstream
+The above step will create the file and write the status of emp1 object into that file. This process is called serialization.
+import java.io._
+@SerialVersionUID(123L)
+class Employee(var empID:Int, var empName:String, var empSalary:Float) extends Serializable{
+override def toString= s"EmpID=${empID}, empName=${empName}, empSalary=${empSalary}"
+}
+object ReadAndWrite {
+	def main(args:Array[String] ) = {
+		val emp1  = new Employee(101, "Suraj", 5000f)
+		val oos = new ObjectOutputStream(new FileOutputStream("f://emp_ser"))
+		oos.writeObject(emp1)
+		oos.close	}}  
+----------------- Deserialization ----------------- -----------------
+4. Similarly if you want to deserialize the object(constructing object from the file), Use objectInputStream to read the data from file and create the object of employee.
+val ois = new ObjectInputStream(new FileInputStream("f://emp_ser"))
+val emp2 = ois.readObject.asInstanceOf[Employee]; ois.close
+-----------------  Creating directories and files ----------------- -----------------
+import java.io._
+object CreateFilesAndFolder extends App{
+	val filePath1 = new File("F:\\data\\employee\\emp1\\readme.txt")
+	val filePath2 = new File("F:\\data\\employee\\emp2\\readme.txt")
+	val filePath3 = new File("F:\\data\\qualification\\emp1\\readme.txt")
+	val filePath4 = new File("F:\\data\\qualification\\emp2\\readme.txt")
+	
+filePath1.getParentFile().mkdirs();
+	filePath2.getParentFile().mkdirs();
+	filePath3.getParentFile().mkdirs();
+	filePath4.getParentFile().mkdirs();
+
+	val write1 = new FileWriter(filePath1);
+// filePath1 absolute path location will be written inthe readme.txt file.
+	write1.write(filePath1.getPath) 
+	val write2 = new FileWriter(filePath2);
+	write2.write(filePath2.getPath)
+	val write3 = new FileWriter(filePath3);
+	write3.write(filePath3.getPath)
+	val write4 = new FileWriter(filePath4);
+	write4.write(filePath4.getPath)
+	write1.close(); 	write2.close();	write3.close();	write4.close();
+}
+---------- WAP to read the files and folders and print the complete path of the file.
+import java.io._
+object CreateFilesAndFolder {
+	def main(args:Array[String]):Unit={ 	listf("f:/data") 	}
+	def listf(directoryName: String){
+		val dir = new File(directoryName);
+		//get all the files from a dir
+		val fileList = dir.listFiles();
+		for(file <- fileList){ 
+			if(file.isFile()){	 println(file)
+			}else if(file.isDirectory()){ listf(file.getAbsolutePath()) }
+		}		}	}
+/* C:\Users\Mohammed Ali\Desktop\scalafiles>scalac CreateFilesAndFolder.scala
+C:\Users\Mohammed Ali\Desktop\scalafiles>scala CreateFilesAndFolder
+f:\data\employee\emp1\readme.txt
+f:\data\employee\emp2\readme.txt
+f:\data\qualification\emp1\readme.txt
+f:\data\qualification\emp2\readme.txt */
+-------------------

@@ -1,0 +1,137 @@
+import java.io.{File, FileNotFoundException, FileReader, IOException}
+import java.lang
+
+object ExceptionHadling1 {
+
+  def main(args: Array[String]): Unit = {
+    println("Program Begins")
+
+    try{
+      process("4")
+      println("Process is Completed")
+    }catch {
+      case ae: ArithmeticException => println("Cannot divide by zero")
+      case aiobe: ArrayIndexOutOfBoundsException => {
+	println(" you can't access element that dosen't exist")}
+      case cnf: ClassNotFoundException => println("cann't found the class")
+      case fnf: FileNotFoundException => println("unable to locate the file")
+      case _: Exception => { println("Some other exception")}
+    } finally { println("This is finally block")}
+    println("Program Ends here")
+  }
+  def handleFileNotFound(fnfe: ClassNotFoundException):Unit={ println(s"class not found $fnfe")}
+  def process(msg: String):Unit = {
+    if(msg.equals("1")){
+      val result=5/0 //AE
+    }
+    else if(msg.equals("2")){
+      val arr=Array(5)
+      println(arr(10))  //AIOBE
+    }
+    else if(msg.equals("3")){
+      Class.forName("Test123") //CNFE
+    }
+    else if(msg.equals("4")){
+      val f = new File("abc.txt")
+      val v = new FileReader(f) //FNFE
+    } else println("Successfull")
+  }
+}
+/*Program Begins
+unable to locate the file
+This is finally block
+Program Ends here */
+-------------------------------
+What will happen if we don't specify the exception type for all the exception?
+No Matter what exception comes, it'll print the 1st exception inthe catch part. Because you have not filtered them by type.
+try{
+      process("4")
+    }catch {
+      case e=> println("Cannot divide by zero")
+      case e=> {println(" you can't access element that dosen't exist")}
+      case e=> println("cann't found the class")
+      case cnf=> println(s"unable to locate the file ${cnf.printStackTrace}")
+      case otherExcption=> { println("Some other exception")}
+    } finally { println("This is finally block")}
+    println("Program Ends here")
+  } /* Output: Cannot divide by zero
+This is finally block
+Program Ends here */
+--------- Writing Custom Exception ----------------------
+class AgeException(s:String) extends Exception(s){}
+case class Employee1 (val name:String, val totalExp: Int, val salary:Float)
+object ServiceUtils {
+  @throws(classOf[AgeException])
+  def validateTotalExpForVisa(yearsOfExp: Int): String={
+    if(yearsOfExp < 4){
+      throw new AgeException(s"please try after ${4 - yearsOfExp} years")
+    }else{ "Eligible"}
+  }
+}
+object CustomException{
+  def main(args: Array[String]): Unit = {
+    val empList = getEmpList
+    val result = empList.map{ emp => {
+      try{
+        val result = ServiceUtils.validateTotalExpForVisa(emp.totalExp)
+        (emp.name, result)
+      } catch {
+        case e: AgeException => {
+          println(s"Exception occured: ${e}")
+          (emp.name, e.getMessage)
+        }
+      }
+    }}
+    result.foreach( println)
+  }
+  private def getEmpList ={
+    val emp1 = Employee1("Suraj", 8, 5000)
+    val emp2 = Employee1("Kiran", 3, 8000)
+    List(emp1, emp2)
+  } } /* Exception occured: assignments.strings.AgeException: please try after 1 years
+(Suraj,Eligible)
+(Kiran,please try after 1 years) */
+---------- @@Throws Annotation:   ---------------------
+object Demo {
+  def main(args: Array[String]): Unit = {
+    try{ m1 }catch { case e: ClassNotFoundException => println(s"Unable to load the class ${e}")}
+    println("Program terminated")
+  }
+  @throws(classOf[ClassNotFoundException]{"If we could not find the below class this Exception would be called"})
+  def m1={ Class.forName("abcd3"); println("from m1 method")}
+}
+--------- scala.util.control.Exception contains some classes like Catch, Try, Catcher, and Finally which can also be used to handle exception.----------------------
+import scala.util.control.Exception.catching
+object Demo{
+  def main(args: Array[String]): Unit = {
+    val catchException = catching(classOf[ArithmeticException]).withApply(e => println(s"Divide by zero not allowed $e"))
+    val content = catchException{10/0}
+    if(content.!=()){
+      println(content)
+    }
+    println ("program ends")
+  }
+}/* Divide by zero not allowed java.lang.ArithmeticException: / by zero
+program ends*/
+-------------------------------
+In case your statement could throw more than 1 Exception, then you can specify them as shown below.
+val catchException = catching(classOf[ArithmeticException], classOf[ArrayIndexOutOfBoundsException]).withApply(e=> println("divide by zero not allowed"))
+Note:
+The signature of catching() is : catching[T](exceptions:Class[_]*):Catch[T]
+means u can pass many exception class, and it returns you Catch Object
+
+Catch Class as withApply(), with signature: withApply[U](f:(Throwable)=>U):Catch[U]
+withApply() returns another Catch object that will execute the anonymous function passed as argument to it, when a target exception is caught.
+----------- using [either] --------------------
+import scala.util.control.Exception.catching
+object Demo{
+  def main(args: Array[String]): Unit = {
+    val catchException = catching(classOf[ArithmeticException])
+    val content = catchException.either{10/0}
+    println(content.left.getOrElse("not found"))
+    println(content.right.getOrElse("Unale to divide"))
+    println ("program ends")
+  }}/* java.lang.ArithmeticException: / by zero
+Unale to divide
+program ends*/       
+---------xxxx----------------------
