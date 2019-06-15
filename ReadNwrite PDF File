@@ -1,5 +1,5 @@
 ============= Read Data from PDF file ===========
-Note: By using Util of IText
+Note: External libs IText used inthis code.
 package invoice;
 
 import com.itextpdf.text.pdf.PdfReader;
