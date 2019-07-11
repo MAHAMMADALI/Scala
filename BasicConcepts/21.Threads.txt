@@ -1,0 +1,259 @@
+================ Threads ==============
+class MyThread extends Thread{
+  override def run(){
+    println(s"Current Thread Running ${Thread.currentThread.getName}")
+    1 to 10 foreach(num=>{println(s"Working $num");Thread.sleep(1000)})
+    println(s"Thread execute successfully ${Thread.currentThread.getName}")
+  }
+}
+object ThreadsDemo{
+  def main(args:Array[String]):Unit={
+    println(s"main() starts: ${Thread.currentThread().getName}")
+    val th = new MyThread
+    th.start()
+    Thread.sleep(3000)
+    println(s"main ends: ${Thread.currentThread().getName}")
+  }
+}
+Output:
+main() starts: main
+Current Thread Running Thread-0
+Working 1
+Working 2
+Working 3
+main ends: main
+Working 4
+Working 5
+Working 6
+Working 7
+Working 8
+Working 9
+Working 10
+Thread execute successfully Thread-0
+------- Implementing Runnable
+package assignments.strings
+
+class MyRunnable extends Runnable{
+  override def run(){
+    println(s"Current Thread Running ${Thread.currentThread.getName}")
+    1 to 10 foreach(num=>{println(s"Working $num");Thread.sleep(1000)})
+    println(s"Thread execute successfully ${Thread.currentThread.getName}")
+  }
+}
+object ThreadsDemo{
+  def main(args:Array[String]):Unit={
+    println(s"main() starts: ${Thread.currentThread().getName}")
+    val runnable = new MyRunnable
+    val th = new Thread(runnable,"MyRunnableThread")
+    th.start()
+    Thread.sleep(3000)
+    println(s"main ends: ${Thread.currentThread().getName}")
+  }
+}/*Output:main() starts: main
+Current Thread Running MyRunnableThread
+Working 1
+Working 2
+Working 3
+main ends: main
+Working 4
+Working 5
+Working 6
+Working 7
+Working 8
+Working 9
+Working 10
+Thread execute successfully MyRunnableThread*/
+---------divide the list of 1 to 100 into 10 parts and find the sum of those parts.--------
+import scala.collection.mutable.ListBuffer
+class MyThread(list:List[Int]) extends Runnable{
+  override def run()={
+    println(s"current Thread Running ${Thread.currentThread().getName}")
+    val sum = list.reduce(_+_)
+    println(s"Thread sum of $list  ${Thread.currentThread().getName} : $sum")
+    Thread.sleep(1000)
+    println(s"Calculation takes 1 secs:  ${Thread.currentThread().getName}")
+  }
+}
+object ThreadDemo{
+  def createSubList(numList: Range.Inclusive, batchSize:Int)={
+    val totalSubListSize = Math.ceil(numList.size/batchSize.toFloat).toInt
+    val listOfSubList = new ListBuffer[List[Int]]
+
+    for (i <- 0 to totalSubListSize-1){
+      var subList:List[Int]=null
+      if(i+1 != totalSubListSize) { //process everything except the last batch
+        subList = numList.slice(i * batchSize, (i + 1) * batchSize).toList
+      } else subList=numList.slice(i*batchSize, numList.length).toList
+      listOfSubList += (subList)
+    }
+    listOfSubList.toList
+  }
+
+  def main(args: Array[String]): Unit = {
+    val numList = 1 to 100
+    val batchSize = 10
+    val subSubList = createSubList(numList,batchSize)
+    subSubList.foreach(list => {
+      val runnable=new MyThread(list)
+      val th = new Thread(runnable)
+      th.start()
+    })
+  }
+}Output:
+Thread sum of List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)  Thread-0 : 55
+Thread sum of List(81, 82, 83, 84, 85, 86, 87, 88, 89, 90)  Thread-8 : 855
+Thread sum of List(41, 42, 43, 44, 45, 46, 47, 48, 49, 50)  Thread-4 : 455
+Thread sum of List(51, 52, 53, 54, 55, 56, 57, 58, 59, 60)  Thread-5 : 555
+Thread sum of List(11, 12, 13, 14, 15, 16, 17, 18, 19, 20)  Thread-1 : 155
+Thread sum of List(91, 92, 93, 94, 95, 96, 97, 98, 99, 100)  Thread-9 : 955
+Thread sum of List(31, 32, 33, 34, 35, 36, 37, 38, 39, 40)  Thread-3 : 355
+Thread sum of List(21, 22, 23, 24, 25, 26, 27, 28, 29, 30)  Thread-2 : 255
+Thread sum of List(61, 62, 63, 64, 65, 66, 67, 68, 69, 70)  Thread-6 : 655
+Thread sum of List(71, 72, 73, 74, 75, 76, 77, 78, 79, 80)  Thread-7 : 755
+------------------------------------------
+Don't split the entire list into multiple sublist with the data.
+Insted calculate the from and to index for each such operation and directly split that from each Thread.
+import java.util
+
+class MyThread(list:List[Int]) extends Runnable{
+  override def run()={
+   // println(s"current Thread Running ${Thread.currentThread().getName}")
+    val sum = list.reduce(_+_)
+    println(s"Thread sum of $list  ${Thread.currentThread().getName} : $sum")
+    Thread.sleep(1000)
+    // println(s"Calculation takes 1 secs:  ${Thread.currentThread().getName}")
+  }
+}
+object SubListThread {
+  def main(args: Array[String]): Unit = {
+    val numList = (1 to 100)
+    val batchSize = 10
+
+    val totalSubListSize = Math.ceil(numList.size / batchSize.toFloat).toInt
+    //val listone = new util.ArrayList[Int]
+    for (i <- 0 to totalSubListSize-1) {
+      var subList: List[Int] = null
+      if (i != totalSubListSize  ) subList = numList.slice(i * batchSize, (i + 1) * batchSize).toList
+      else subList=numList.slice(i*batchSize, numList.length).toList
+        val runnable = new MyThread(subList)
+        val th = new Thread(runnable)
+        th.start()
+
+
+    }
+  }
+}
+Thread sum of List(31, 32, 33, 34, 35, 36, 37, 38, 39, 40)  Thread-3 : 355
+Thread sum of List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)  Thread-0 : 55
+Thread sum of List(81, 82, 83, 84, 85, 86, 87, 88, 89, 90)  Thread-8 : 855
+Thread sum of List(91, 92, 93, 94, 95, 96, 97, 98, 99, 100)  Thread-9 : 955
+Thread sum of List(21, 22, 23, 24, 25, 26, 27, 28, 29, 30)  Thread-2 : 255
+Thread sum of List(41, 42, 43, 44, 45, 46, 47, 48, 49, 50)  Thread-4 : 455
+Thread sum of List(51, 52, 53, 54, 55, 56, 57, 58, 59, 60)  Thread-5 : 555
+Thread sum of List(71, 72, 73, 74, 75, 76, 77, 78, 79, 80)  Thread-7 : 755
+Thread sum of List(11, 12, 13, 14, 15, 16, 17, 18, 19, 20)  Thread-1 : 155
+Thread sum of List(61, 62, 63, 64, 65, 66, 67, 68, 69, 70)  Thread-6 : 655
+------------------------------------
+package assignments.strings
+
+import java.util.concurrent.{Callable, ExecutorService, Future, TimeUnit}
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ListBuffer
+class MyCllable(ints: List[Int])(list:List[Int]) extends Callable[Int]{
+   def call()={
+    println(s"current Thread Running ${Thread.currentThread().getName}")
+    val sum = list.reduce(_+_)
+    println(s"Thread sum of $list  ${Thread.currentThread().getName} : $sum")
+    Thread.sleep(1000)
+    println(s"Calculation takes 1 secs:  ${Thread.currentThread().getName}")
+     sum
+  }
+}
+object ThreadDemo{
+  def createSubList(numList: Range.Inclusive, batchSize:Int)={
+    val totalSubListSize = Math.ceil(numList.size/batchSize.toFloat).toInt
+    val listOfSubList = new ListBuffer[List[Int]]
+
+    for (i <- 0 to totalSubListSize-1){
+      var subList:List[Int]=null
+      if(i+1 != totalSubListSize) { //process everything except the last batch
+        subList = numList.slice(i * batchSize, (i + 1) * batchSize).toList
+      } else subList=numList.slice(i*batchSize, numList.length).toList
+      listOfSubList += (subList)
+    }
+    listOfSubList.toList
+  }
+
+  def main(args: Array[String]): Unit = {
+    val numList = 1 to 100
+    val batchSize = 10
+    val subSubList = createSubList(numList,batchSize)
+    import java.util.concurrent.ExecutorService
+    import java.util.concurrent.Executors
+    val threadPool = Executors.newFixedThreadPool(3)
+
+    //Process1
+    val futureList = new ListBuffer[Future[Int]]
+    subSubList.map(list => {
+      val callable=new MyCllable(list)
+      val result = threadPool.submit(callable)
+      futureList += result
+    })
+    futureList.foreach(future => {
+      while(!future.isDone){}
+      println(s"Result: ${future.get()}")
+    })
+    //Process 2
+    val callableList = subSubList.map(list =>{
+      val callable=new MyCllable(list)
+      callable
+    })
+    val futureList = threadPool.invokeAll(callableList.asJava)
+    var totalsum=0{}
+    futureList.forEach(future => {
+      while (!future.isDone){}
+      totalsum+=future.get()
+    })
+    println("total sum= "+totalsum)
+    threadPool.shutdown()
+  }
+}current Thread Running pool-1-thread-1
+current Thread Running pool-1-thread-3
+current Thread Running pool-1-thread-2
+Thread sum of List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)  pool-1-thread-1 : 55
+Thread sum of List(21, 22, 23, 24, 25, 26, 27, 28, 29, 30)  pool-1-thread-3 : 255
+Thread sum of List(11, 12, 13, 14, 15, 16, 17, 18, 19, 20)  pool-1-thread-2 : 155
+Calculation takes 1 secs:  pool-1-thread-3
+current Thread Running pool-1-thread-3
+Thread sum of List(31, 32, 33, 34, 35, 36, 37, 38, 39, 40)  pool-1-thread-3 : 355
+Calculation takes 1 secs:  pool-1-thread-2
+current Thread Running pool-1-thread-2
+Thread sum of List(41, 42, 43, 44, 45, 46, 47, 48, 49, 50)  pool-1-thread-2 : 455
+Calculation takes 1 secs:  pool-1-thread-1
+current Thread Running pool-1-thread-1
+Result: 55
+Result: 155
+Result: 255
+Thread sum of List(51, 52, 53, 54, 55, 56, 57, 58, 59, 60)  pool-1-thread-1 : 555
+Calculation takes 1 secs:  pool-1-thread-3
+current Thread Running pool-1-thread-3
+Result: 355
+Calculation takes 1 secs:  pool-1-thread-2
+current Thread Running pool-1-thread-2
+Thread sum of List(61, 62, 63, 64, 65, 66, 67, 68, 69, 70)  pool-1-thread-3 : 655
+Result: 455
+Thread sum of List(71, 72, 73, 74, 75, 76, 77, 78, 79, 80)  pool-1-thread-2 : 755
+Calculation takes 1 secs:  pool-1-thread-1
+current Thread Running pool-1-thread-1
+Result: 555
+Thread sum of List(81, 82, 83, 84, 85, 86, 87, 88, 89, 90)  pool-1-thread-1 : 855
+Calculation takes 1 secs:  pool-1-thread-3
+Result: 655
+current Thread Running pool-1-thread-3
+Calculation takes 1 secs:  pool-1-thread-2
+Thread sum of List(91, 92, 93, 94, 95, 96, 97, 98, 99, 100)  pool-1-thread-3 : 955
+Result: 755
+Calculation takes 1 secs:  pool-1-thread-1
+Result: 855
+Calculation takes 1 secs:  pool-1-thread-3
+Result: 955

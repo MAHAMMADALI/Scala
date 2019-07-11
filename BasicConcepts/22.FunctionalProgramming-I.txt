@@ -1,0 +1,376 @@
+=============== Functional Programming =============
+1.Predicate:if a method/function/anonymous fun. takes one or more args and return Boolen value.
+scala> def isEven(i:Int)=(i%2==0)
+isEven: (i: Int)Boolean
+
+scala> def isEven(i:Int)= i%2==0
+isEven: (i: Int)Boolean
+
+2. Anonymous function: A function without any name is called Anonymous fun.. Remove def and function name and change = to => will make the function anonymous.
+scala> (i:Int) => (1%2==0)
+res1: Int => Boolean = $$Lambda$1047/1994100808@54daf8f9
+scala> val list=List.range(1,10)
+list: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8, 9)
+
+scala> list.filter(num => num%2==0)
+res3: List[Int] = List(2, 4, 6, 8)
+
+scala> val even = list.filter(_%2==0)
+even: List[Int] = List(2, 4, 6, 8)
+------------ Function and method 
+Difference btn Function and method in scala:
+method: scala> def sum(num1:Int, num2:Int)={num1+num2}
+sum: (num1: Int, num2: Int)Int
+Function: scala> val sum =(num1:Int, num2:Int)=>{num1+num2}
+sum: (Int, Int) => Int = $$Lambda$1125/363850700@68722de3
+---------
+scala> var num1=10;var num2=20
+num1: Int = 10
+num2: Int = 20
+
+scala> var greter=if(num1>num2)num1 else num2
+greter: Int = 20
+
+scala> var num1="10"
+num1: String = 10
+
+scala> val result=try{num1.toInt} catch{case _ => 0}
+result: Int = 10
+---------- Function Literals or Anonymous function --------------------
+scala> val numList=List.range(1,10)
+numList: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8, 9)
+
+scala> def isEven(num:Int):Boolean={ num%2==0 }
+isEven: (num: Int)Boolean
+
+scala> (num:Int) => num%2==0
+res0: Int => Boolean = $$Lambda$1099/1037220289@6a1d1467
+
+scala> numList.foreach(num => { if ( isEven(num) ) print(num+"\t") } )
+2       4       6       8
+scala> val evenList=numList.filter(isEven)
+evenList: List[Int] = List(2, 4, 6, 8)
+
+scala> val evenList=numList.filter(isEven(_))
+evenList: List[Int] = List(2, 4, 6, 8)
+
+scala> val evenList=numList.filter(x => isEven(x))
+evenList: List[Int] = List(2, 4, 6, 8)
+
+scala> val evenList = numList.filter( (i:Int) => i%2==0)
+evenList: List[Int] = List(2, 4, 6, 8)
+
+scala> val evenList = numList.filter( i => i%2==0) //() and datatype are optional
+evenList: List[Int] = List(2, 4, 6, 8)
+
+scala> val evenList = numList.filter(_%2==0)
+evenList: List[Int] = List(2, 4, 6, 8)
+--------Possible ways of pringint the List using foreach, 
+scala> evenList.foreach( (even:Int) => print(even+"\t") )
+scala> evenList.foreach( even => print(even+"\t") )
+scala> evenList.foreach(print(_)) //note (_+"\t") will not work here.
+scala> evenList.foreach(print)
+2468
+----------------------------------
+Functions can also be used as a variable:
+scala> def printNum(num:Int)={print(num)}
+printNum: (num: Int)Unit
+looking inthe above declaration, num is just a variable to call the printNum function we will use a paramet as 
+scala> printNum(10) //10
+Do you want to pass the function insted of a variable as shown above?
+let's say you want to create a function that can return 2 times of input:
+scala> def double(num:Int)=num*2
+double: (num: Int)Int
+
+scala> double(5)
+res18: Int = 10
+you can just include the method signature and body and ignore the return type and function name and replace = by =>
+scala> def double(num:Int):Int={num*2}
+double: (num: Int)Int
+
+scala> (num:Int)=>{num*2}
+res19: Int => Int = $$Lambda$1185/1167716620@256216b6
+
+scala> val double = (num:Int)=>{num*2}
+double: Int => Int = $$Lambda$1186/1252133548@2dfa0bff
+
+scala> double(3)    //6
+-------------------------------------
+Lets try to use it with list and map:
+scala> val numList = List.range(1,10)
+numList: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8, 9)
+scala> numList.map(num=>num)
+res21: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8, 9)
+map() takes each argument and does some calculation withit and then return itback. Inour case we have not done anything and simply returned that number.
+Now it you just want to return double of each element. you could write.
+
+scala> numList.map(num=>double(num))
+scala> numList.map(double(_))
+scala> numList.map(double)
+res26: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18)
+-------Different approaches of defining function variable:
+Let's try to write a function that can return true if number is even, false otherwise
+Defining a function
+scala> def isEven(num:Int):Boolean={num%2==0}
+isEven: (num: Int)Boolean
+scala> val isEven= (num:Int)=>{num%2==0}
+isEven: Int => Boolean = $$Lambda$1223/121873207@e79a675
+
+Here we are using inside function, in above we were difining a function
+scala> val evenList=numList.filter( (i:Int) => i%2 ==0)
+scala> val evenList=numList.filter( (i) => i%2 ==0) //no need to defind the datatype
+evenList: List[Int] = List(2, 4, 6, 8)
+-----------
+scala> val isEven=(num:Int)=>{num%2==0}
+scala> val isEven:(Int)=>Boolean = (num)=>{num%2==0}
+scala> val isEven:Int=>Boolean = num=>num%2==0
+scala> val isEven:Int  =>Boolean=_%2==0 //since num=>num has same variable
+----------- Function variable with 2 parameters -----------
+Function variable with 2 parameters Let’s write a method to sum 2 numbers:
+scala> def sum(num1:Int, num2:Int):Int={ num1+num2 } //method to sum 2 nums
+sum: (num1: Int, num2: Int)Int
+// writing above as a fun variable (Implicit approach)
+scala> val sum = (num1:Int, num2:Int)=>{num1+num2}
+sum: (Int, Int) => Int = $$Lambda$1230/285657907@7713f921
+Explicit Approach: Bring only the input parameters types to front:
+scala> def sum(num1:Int, num2:Int):Int={ num1+num2 }
+scala> val sum = (num1:Int, num2:Int)=>{num1+num2}
+scala> val sum:(Int,Int)=>Int =(num1,num2)=>num1+num2
+sum: (Int, Int) => Int = $$Lambda$1235/1046683703@6299cbbb 
+------------- Functions and Anonymous Functions:
+scala> def isEven1(num:Int):Boolean={num%2==0}
+scala> val isEvent2:Int=>Boolean = _%2==0  //Explicit declaration 
+
+scala> numList.map(isEven1) //Both results the same output
+scala> numList.map(isEvent2)
+res29: List[Boolean] = List(false, true, false, true, false, true, false, true, false)
+------------ Method accepting function parameter (with no input and no output):
+scala> def executeMe(m1:()=>Unit){m1()}//executeMe returns unit
+executeMe: (m1: () => Unit)Unit
+
+scala> def sayHello()={println("Hello")}
+sayHello: ()Unit
+
+scala> executeMe(sayHello)
+<console>:14: warning: Eta-expansion of zero-argument methods is deprecated. To avoid this warning, write (() => say
+Hello()).
+       executeMe(sayHello)
+                 ^
+Hello
+The above approach prints Hello but with warning. This approach is not recommended, and the new approach is to create a variable pointing to anonymous method and pass that variable as shown below:
+scala> def executeMe(m1: =>Unit){m1} //removed braces
+scala> def sayHello={print("Hello")} //removed braces
+scala> val sayHello = () => {print("Hello")}// creating a pointer for this function
+sayHello: () => Unit = $$Lambda$1254/318215611@1d13d1df
+Defined a variable sayHello that points toan anonymous function that take no input and produces no output. It just print Hello.Now let's pass sayHello variable to executeMe
+scala> executeMe(sayHello) //Note: doesnt print anything.
+<console>:14: warning: a pure expression does nothing in statement position
+       executeMe(sayHello)
+                 ^
+------Method accepting function parameter(with 1 input and no output)
+we want to define a method that can accept a function with 1 input of Int, and returns nothing. The function should simply double the value.
+scala> def executeME( m1:(Int) => Unit) { m1(2) }
+executeME: (m1: Int => Unit)Unit
+
+scala> def double(num:Int) = { println(num*2) }
+double: (num: Int)Unit
+
+scala> val double=(num:Int)=>{println(num*2)}
+scala> executeME(double)     //output: 4
+
+scala> val triple=(num:Int)=>{println(num*3)}
+scala> executeME(triple) //output: 6
+-------------- Assignment: Functional Programming: PAGE 9
+Create a method employeeService() similar to executeMe, where you prepare a list of names as shownbelow:
+val empList=List("Suraj","Kiran","Isha","Bobby","Hemant")
+employeeService will accept a function that takes a parameter of empList.
+Create the above 3 function variable that accepts empList and prints the desired output:
+1. highestLength: takes empList and prints employee with the highest length. if 2 employee has same size, print both of them, Maintain it in temp list.
+2. lowestLength : takes empList and prints employee with the lowest length. if 2 employee has same size, print both of them. Maintain it in temp list.
+3. reverse: takes empList and prints each employee inthe revers order.
+and these will be called as below:
+employeeService(highestLength), employeeService(lowestLength), employeeService(reverse)
+bject EmployeesList extends  App {
+
+  val empList=List("Suraj","Kiran","Isha","Bobby","Hemanth", "1234")
+
+  def employeeService( f:List[String]=>List[String], el:List[String]):List[String]={f(el)}
+
+  employeeService(highestLength, empList).foreach(println)
+  employeeService(lowestLength, empList).foreach(println)
+  employeeService(reverse, empList).foreach(println)
+
+  def highestLength(eList:List[String]): List[String] ={
+    val maxStringLength = eList.reduce((a,b) =>  {if (a.length > b.length)a else b})
+    val maxString = eList.filter( str => (str.length == maxStringLength.length))
+    println(s"Names with the Max length : ")
+    maxString
+    /*import scala.collection.mutable.ArrayBuffer
+    var tempList=new ArrayBuffer[String]()
+    var maxLength = 0
+    var longestString = ""
+    for (str <- eList)  if (str.length > maxLength){ maxLength = str.length}
+    for (str <- eList)  if (str.length == maxLength) tempList += str
+    tempList.toList */
+  }
+  def lowestLength (eList:List[String]): List[String] ={
+    val minStringLength = eList.reduce((a,b) =>  {if (a.length < b.length)a else b})
+    val minString = eList.filter( str => (str.length == minStringLength.length))
+    println(s"Names with the Min length : ")
+    minString
+    /*import scala.collection.mutable.ArrayBuffer
+    var tempList=new ArrayBuffer[String]()
+    var minLength = 0
+    var longestString = ""
+    for (str <- eList)  if (str.length < minLength) minLength = str.length
+    for (str <- eList)  if (str.length == minLength) tempList += str
+    println(s"Names with the same length : ")
+    tempList.toList*/
+  }
+  def reverse(eList:List[String]): List[String] ={
+    val reverseStr = eList.map( str => str.reverse)
+    println(s"Names inthe reverse order : ")
+    reverseStr
+  }
+}
+---------- Method accepting function parameter(with 1 i/p and 1 o/p):
+def double(num:Int)={num*2}
+val double=(num:Int)=>{num*2} // declaring a variable pointing to anonymous method
+def executeMe(m1:(Int)=>Int){m1(2)} //here m1 is just a placeholder
+Now call executeMe: executeMe(double(5))
+<console>:14: error: type mismatch;
+ found   : Int
+ required: Int => Int
+       executeMe(double(5)
+                       ^
+Note:Why is this error? Beacuse it you call double(5) it returns you Int, so you can calling executeMe(Int) but executeMe expects you to pass function which takes int and returns Int.
+scala> executeMe(double) //Prints nothing
+Because it called double(2) and the double method you are not printing it. you are simply returning it and you are not even catching it. So, to work the above code, we need to change the code as: scala> def executeMe(m1:Int => Int):Int={m1(2)}
+executeMe: (m1: Int => Int)Int
+scala> executeMe(double)  //output: res8: Int = 4
+----------- Method accepting function parameter(with 2 i/p and 1 o/p):
+Speed=Distance/Time
+scala> def executeMe(f:(Int,Int)=>Float):Float = {f(60,50)}
+executeMe: (f: (Int, Int) => Float)Float
+scala> def timeFor60KMPS(speed:Int,distance:Int)={val time=distance*1.0f/speed; time}
+timeFor60KMPS: (speed: Int, distance: Int)Float
+
+scala> def timeFor60KMPS(speed:Int, distance:Int)={val time=distance*1.0f/speed; time}
+scala> val timeFor60KMPS=(speed:Int, distance:Int)=>{distance*1.0f/speed}
+timeFor60KMPS: (Int, Int) => Float = $$Lambda$1203/1581473549@51a7ee4e
+scala> executeMe(timeFor60KMPS) //output: res9: Float = 0.8333333
+------------Passing other parameters along with function:
+scala> def executeMe(m1:() => Unit){m1()} //executeMe: (m1: () => Unit)Unit
+scala> val sayHello=()=>{print("HELLO")} //sayHello: () => Unit = $$Lambda$1212/117403789@cc
+scala> executeMe(sayHello)                      // HELLO
+
+what if we want to print this x times:
+scala> def execute(m1:()=>Unit, frequency:Int){ for(i <- 1 to frequency) m1() }
+execute: (m1: () => Unit, frequency: Int)Unit
+
+scala> execute(sayHello, 5)
+HELLO HELLO HELLO HELLO HELLO
+
+Defined a method called calcu that takes 3 parameter and returns Int.
+scala> def calcu( f:(Int,Int)=>Int, num1:Int, num2:Int):Int = { f(num1, num2)}
+calcu: (f: (Int, Int) => Int, num1: Int, num2: Int)Int
+scala>  val calcu=( f:(Int,Int)=>Int, num1:Int, num2:Int) => { f(num1, num2)}
+calcu: ((Int, Int) => Int, Int, Int) => Int = $$Lambda$1292/176044183@7788921d
+//explicitly giving the return type.
+val calcu:( (f:(Int,Int)=>Int), Int, Int)=>Int = ( f:(num1,num2), num1, num2) => { f(num1, num2)}
+
+
+now, create sum,mul,div methods to support that:
+scala> val sum=(x:Int, y:Int) => {x+y} //sum: (Int, Int) => Int = $$Lambda$1293/2122148@5e3b7
+scala> val mul=(x:Int,y:Int) => x*y   //mul: (Int, Int) => Int = $$Lambda$1294/2062458697@2419f
+scala> val div = (x:Int,y:Int) => x/y //div: (Int, Int) => Int = $$Lambda$1295/1156313170@459de
+
+scala> calcu(sum,10,30)  //res15: Int = 40
+scala> calcu(mul,10,30) //res16: Int = 300
+scala> calcu(div,30,10) //res17: Int = 3
+------------------------------------------------
+Assignment1 PAGE 12: covert all above hard coded fun to dynamic fun sothat u pass any value.
+Assignment2: Define a function called ABSquare that takes n1,n2,and returns u Int based on formula [(A+B)2 = A2 +B2 +2AB]
+------------ Cloures: ----------
+Let's create a function value which points to an anonymous function that can calculate the multiple of 10.
+scala> val mul=(num1:Int)=>num1*10
+mul: Int => Int = $$Lambda$1303/354507553@1e748256
+
+scala> mul(2)
+res20: Int = 20
+
+scala> val mul=(num1:Int, num2:Int) => num1 * num2
+mul: (Int, Int) => Int = $$Lambda$1304/306563664@22b543f8
+
+scala> mul(2,20)
+res21: Int = 40
+-----------------------------
+class Demo{ 	def executeMe(f:(String)=>Unit, name:String) { f(name) }  }
+object ClosureExample{
+	val hello="HELLO"
+	def sayHello(name:String) { println(s"$hello, ${name}")  }
+	def main(args:Array[String]){ 
+		val demo = new Demo
+		demo.executeMe(sayHello, "Siraj")
+	} } //Output: HELLO, Siraj
+----------------
+scala> def printEligibility(f:Int=>Boolean, age:Int){
+     |  val result = f(age)
+     |  if(result) println("YES") else print("NO")
+     | }
+printEligibility: (f: Int => Boolean, age: Int)Unit
+
+scala> printEligibility(isMajor,30)
+YES
+
+scala> printEligibility(isMajor,0)
+NO
+------- Closure with another datatype: --------
+scala> import scala.collection.mutable.ArrayBuffer
+scala> val evenList=new ArrayBuffer[Int]()
+scala> val oddList=new ArrayBuffer[Int]()
+oddList: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer() //similar evenList:…
+
+def evenOrOdd(num:Int)={  print{    num%2==0 match{
+    case true => "EVEN" ;    case false=> "ODD"    } }}
+
+val evenOrOdd = (num:Int) => { print { num%2==0 match{  case true=> "EVEN" ; case false=> "ODD" } } }
+val evenOrOdd:Int=>Unit = num => { print { num%2==0 match{  case true=> "EVEN" ; case false=> "ODD" } } }  //explicit declaration
+
+scala> evenOrOdd(8) //EVEN
+scala> evenOrOdd(9)//ODD
+
+
+scala> import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.ArrayBuffer
+
+scala> val evenList=new ArrayBuffer[Int]()
+evenList: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer
+
+scala> val oddList=new ArrayBuffer[Int]()
+oddList: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(
+
+Let's redefine the method to store even or odd number to respective list.
+scala> def evenOrOdd(num:Int)={ if(num%2==0)evenList += num; else oddList += num }
+evenOrOdd: (num: Int)scala.collection.mutable.ArrayBuffer[Int]
+scala> evenOrOdd(5)//res0: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(5)
+scala> evenOrOdd(2)//res1: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(2)
+scala> evenList//res2: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(2)
+scala> oddList //res3: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(5)
+
+Let's create a method that can accept anonymous function similar to evenOrOdd with a number
+scala> def process(f:Int=>ArrayBuffer[Int],num:Int){ f(num) }
+process: (f: Int => scala.collection.mutable.ArrayBuffer[Int], num: Int)Unit
+scala> process(evenOrOdd, 8)  //no output
+scala> process(evenOrOdd, 3)//no output, and to print these list:
+scala> evenList //res11: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(2, 4, 8)
+scala> oddList //res12: scala.collection.mutable.ArrayBuffer[Int] = ArrayBuffer(5, 3)
+----------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+

@@ -1,0 +1,384 @@
+------- Partial Applied Functions: A fun. which is not completely applied is called partial applied functions:
+scala> val greetEmp=(name:String, company:String, salary:Float)=>{
+     | println(s"Dear $name, welcome to $company, your ctc=$salary LPA") }
+greetEmp: (String, String, Float) => Unit = $$Lambda$1241/1920914736@5bc54087
+
+scala> greetEmp("Suraj","TCS", 5.4f)
+Dear Suraj, welcome to TCS, your ctc=5.4 LPA
+
+Let's say, this function will be used to greet all the new joiners of TCS and eveybody is offered wit a constant package of 5.3f.
+So, the last 2 parameter looks like a constant parameter.Let's create something as shown below:
+scala> val freshers = greetEmp(_:String,"TCS",5.3f) //not a method call
+freshers: String => Unit = $$Lambda$1242/670082845@1dc7173
+-------- Function Returning a Function: -----------
+scala> (msg:String)=>{s"Hello $msg"}   //res0: String => String = $$Lambda$1043/2@7de147e9
+
+scala> def greetMorning(time:String) = (msg:String)=>{s"Hello $time $msg"}  
+//greetMorning: (time: String)String => String
+
+Above  stmt, greetMorning() accepts String and returns an anonymous function that defined earlier. While calling greetMorning u can assign call to a variable which will hold the function returned type.
+
+scala> val msg = greetMorning("Good Morning")  //msg: String => String = $$Lambda$1062/20db
+
+Now the msg is actually pointing to the anonymous function. call that function by passing some value.
+scala> msg("Suraz") //u can also hold it to a String Variable.t:res1: String = Hello Good Morning Suraz
+
+scala> val msg = greetMorning("Good Morning")("Suraz") //msg: String = Hello Good Morning Suraz
+
+scala> val greetMorning=(time:String)=>(msg:String)=>{s"Hello $time $msg"}
+//greetMorning: String => (String => String) = $$Lambda$1069/1101786725@297dff3a
+
+scala> val msg=greetMorning("Good Morning")("Suraz") //msg: String = Hello Good Morning Suraz
+-------------- Partial Functions: 
+Creating your Partial Function:
+scala> val divide=(num1:Int)=>50/num1  //divide: Int=>Int = $$Lambda$1073/199597@71817f66
+scala> divide(10)  //res2: Int = 5
+scala> divide(0)  //java.lang.ArithmeticException: / by zero
+
+scala> val divide=new PartialFunction[Int,Int]{
+     | def apply(num1:Int)=50/num1
+     | def isDefinedAt(num1:Int)=num1 !=0 }//divide: PartialFunction[Int,Int] = <function1>
+
+scala> divide.isDefinedAt(10) //res6: Boolean = true
+scala> if(divide.isDefinedAt(10)) divide(10) //res7: AnyVal = 5
+scala> divide.isDefinedAt(0) //res8: Boolean = false
+scala> divide(0) //java.lang.ArithmeticException: / by zero
+
+Another approach:
+scala> val divide: PartialFunction[Int,Int]={ case d:Int if d !=0 => 42/d }  
+//divide: PartialFunction[Int,Int] = <function1>
+scala> divide.isDefinedAt(0) //res10: Boolean = false
+scala> divide.isDefinedAt(10) //res11: Boolean = true
+scala> divide(0) //scala.MatchError: 0 (of class java.lang.Integer)…
+scala> divide.apply(10) //res13: Int = 4
+scala> divide.apply(0) //scala.MatchError: 0 (of class java.lang.Integer)…
+
+hence for x=12 o/p is 42, 21
+scala> List(1,2)map{divide}  //res15: List[Int] = List(42, 21)
+However, the below stmt fails, as it tried to perform 42/0 for the first parameter.
+scala> List(0,1,2)map{divide}  //scala.MatchError: 0 (of class java.lang.Integer)
+
+However, the below statement will again work. Because collect internally calls isDefinedAt() for each input, and then calls the apply() only when isDefinedAt returns you true.
+scala> List(0,1,2)collect{divide}  //res17: List[Int] = List(42, 21)
+
+Similarly you can use collect() to process only Int type data from a List that contains mixed datatype.
+scala> List(1,"Appli",2,"Cat")collect{case num:Int=> num+1} //res18: List[Int] = List(2, 3)
+
+The above stmt says work only on Int datatype. This won’t work with map as show below:
+scala>List(1,"Apple",2,"Cat")map{case num:Int=> num+1} 
+//scala.MatchError: Appli (of class java.lang.String
+
+Let's create another Partial function, which takes Int and returns String:
+val convertNumToString=new PartialFunction[Int,String]{
+val nums=Array("one","two","three","four","five")
+def apply(i:Int)=nums(i-1)
+def isDefinedAt(i:Int)= i>0 && i<6 }
+//convertNumToString: PartialFunction[Int,String]{val nums: Array[String]} = <function1>
+
+The above function is a partial function which can accept only number from 1 to 5 and returns you the String equivalent of that number. If you pass any other parameter it'll simply throw you exception. As we can see, it accepts Int and returns Strings.
+
+scala> convertNumToString(1)  //res20: String = one
+scala> convertNumToString(6) //java.lang.ArrayIndexOutOfBoundsException: 5
+
+-------------------- Assignment: Part2: Page:4: 
+1. Create a list of numbers, and use collect to call converNumToString such that invalid inputs are not evaluated.
+scala> val convertNumToString=new PartialFunction[Int,String]{
+     | val nums=Array("one","two","three","four","five")
+     | def apply(i:Int)=nums(i-1)
+     | def isDefinedAt(i:Int)= i>0 && i<6 }
+convertNumToString: PartialFunction[Int,String]{val nums: Array[String]} = <function1>
+
+scala> List(1,"Appli",2,"Cat")collect{case num:Int=> if(convertNumToString.isDefinedAt(num)) convertNumToString(num)}  // res15: List[Any] = List(one, two)
+
+scala>List(1,0,2,3,6,7,8,9)collect{case num:Int=> if(convertNumToString.isDefinedAt(num)) convertNumToString(num)}  //res8: List[Any] = List(one, (), two, three, (), (), (), ())
+
+2. Define an Employee case class with 4 params, empName, empDept, empDesignation, empSalary
+Create a List of 10 employee object, all possible dept is IT, Mgmt.
+Under IT and Mgmt dept, these are the designations:
+IT - CSE, SE, TL, MGR (here CSE means: Contract Software Engineer)
+Mgmt - HR, MGR
+
+MGR of Mgmt are not allowed for hikes
+CSE of IT are not allowed to hikes
+IT- SE= 10% , TL=5% , MGR=2% & Mgmt-Hr=3%
+
+name	Dept	designation	salary
+Raj	IT	CSE	1000
+Anil	IT	SE	5000
+Bindu	Mgmt	MGR	10000
+Chiru	IT	TL	2000
+Hemanth	Mgmt	HR	3000
+Mithun	IT	SE	8000
+Salman	Mgmt	HR	5000
+Nag	IT	CSE	4000
+Partha	Mgmt	MGR	20000
+import java.util
+case class Employee(empName:String, empDept:String, empDesignation:String, empSalary:Float)
+object FPEmployee {
+  val empDetails = new util.ArrayList[Employee]
+  def main(args: Array[String]): Unit = {
+    val rajEmp = Employee("Raj", "IT", "CSE",	1000f);           empDetails.add(rajEmp)
+    val anilEmp = Employee("Anil", "IT", "SE", 5000f);          empDetails.add(anilEmp)
+    val binduEmp = Employee("Bindu", "Mgmt", "MGR", 10000f);    empDetails.add(binduEmp)
+    val chiruEmp = Employee("Chiru", "IT", "TL", 2000f);        empDetails.add(chiruEmp)
+    val hemanthEmp = Employee("Hemanth", "Mgmt", "HR", 3000f);  empDetails.add(hemanthEmp)
+    val mithunEmp = Employee("Mithun", "IT", "SE" ,8000f);      empDetails.add(mithunEmp)
+    val salmanEmp = Employee("Salman", "Mgmt", "HR", 5000f);    empDetails.add(salmanEmp)
+    val nagEmp = Employee("Nag", "IT", "CSE", 4000f);           empDetails.add(nagEmp)
+    val parthaEmp = Employee("Partha", "Mgmt", "MGR", 20000f);  empDetails.add(parthaEmp)
+
+    val itr = empDetails.listIterator
+    while (itr.hasNext){ println(empHikeProcess(itr.next))  }
+  }
+  val empHikeProcess = new PartialFunction[Employee, String] {
+    override def isDefinedAt(emp: Employee): Boolean = { emp.empSalary > 0 }
+    override def apply(emp:Employee): String = {
+      val empIT:String = emp.empDept
+      val empDesignation:String = emp.empDesignation
+      val empDept:String = emp.empDept
+      val empSal:Float = emp.empSalary
+      if((empIT == "IT" && empDesignation == "CSE") || (empDept=="Mgmt" && empDesignation=="MGR")) s"Revised Salary post hike for Employee ${emp.empName} is : ${empSal}"
+      else if (empDept == "IT" && empDesignation=="SE") s"Revised Salary post hike for Employee ${emp.empName} is : ${((emp.empSalary * 0.1) + emp.empSalary)}"
+      else if (empDept == "IT" && empDesignation=="TL") s"Revised Salary post hike for Employee ${emp.empName} is : ${((emp.empSalary * 0.05) + emp.empSalary)}"
+      else if (empDept == "IT" && empDesignation=="MGR") s"Revised Salary post hike for Employee ${emp.empName} is : ${((emp.empSalary * 0.02) + emp.empSalary)}"
+      else s"Revised Salary post hike for Employee ${emp.empName} is : ${((emp.empSalary * 0.03) + emp.empSalary).toFloat}"
+    }
+  }
+}
+-----------------------------------------
+------------- Chaining Partial Functions:
+You can use orElse to chain more than 1 partial function. let's say we have 2 different partial function,
+1. to convert 1  to 5  from Int to String 
+2. to convert 6  to 10 from Int to String
+
+scala> val convert1to5=new PartialFunction[Int,String]{
+     | val nums=Array("One", "Two","Three","four","Five")
+     | def apply(i:Int)=nums(i-1)
+     | def isDefinedAt(i:Int)=i>0 && i<6
+     | } //convert1to5: PartialFunction[Int,String]{val nums: Array[String]} = <function1>
+scala> val convert6to10 = new PartialFunction[Int,String]{
+     | val nums=Array("Six","Seven","Eight","Nine","Ten")
+     | def apply(i:Int)=nums(i-6)
+     | def isDefinedAt(i:Int)=i>5 && i<11 }//
+convert6to10: PartialFunction[Int,String]{val nums: Array[String]} = <function1>
+These functions when taken separatly can handle 1-5 & 6-10 respectively. However, you can combine both their functionalities to handle 1-10 as shown below: 
+---------- 
+scala> val convert1to10=convert1to5 orElse convert6to10
+convert1to10: PartialFunction[Int,String] = <function1>
+scala> convert1to10(1) //res0: String = One
+scala> convert1to10(11) //java.lang.ArrayIndexOutOfBoundsException: 5
+
+scala> val sample=1 to 5 //sample: scala.collection.immutable.Range.Inclusive = Range 1 to 5
+
+scala> val isEven:PartialFunction[Int,String]={case x if x%2==0 => x+" isEven"}
+isEven: PartialFunction[Int,String] = <function1>
+
+scala> val evenNumbers = sample collect isEven
+evenNumbers: scala.collection.immutable.IndexedSeq[String] = Vector(2 isEven, 4 isEven)
+
+scala> val isOdd:PartialFunction[Int,String]={case x if x%2 == 1 => x +" is Odd"}
+isOdd: PartialFunction[Int,String] = <function1>
+
+In this example, u can either use map or collect as the logic is never going to throw any exception, irrespective of any input.
+
+scala> val numbers = sample map (isEven orElse isOdd)
+scala> val numbers = sample collect (isEven orElse isOdd) //Output for both map and collect is same.
+numbers: scala.collection.immutable.IndexedSeq[String] = Vector(1 is Odd, 2 isEven, 3 is Odd, 4 isEven, 5 is Odd)
+
+------------- function currying:
+scala> def sum(num1:Int,num2:Int):Int={num1+num2}//sum: (num1: Int, num2: Int)Int
+scala> sum(5,10) //res0: Int = 15
+
+Let's change the function defination a bit. Note how the function now will take 2 params separately.
+scala> def sum(num1:Int)(num2:Int):Int={num1+num2}
+sum: (num1: Int)(num2: Int)Int
+scala> sum(5)(10)  res1: Int = 15
+scala> (sum(5)_).apply(10) //res2: Int = 15
+scala> sum(5,3) //<console>:13: error: too many arguments (2) for method sum: (num1: Int)(num2: Int)Int sum(5,3)
+                 ^
+U can use function currying with Partial Function(PF) as shown below:
+scala> val sum2=sum(1)_ ;sum2(5)
+sum2: Int => Int = $$Lambda$1134/1486040328@45648e75 ;//res5: Int = 6
+Note: when using with PF, ‘ _’ should be at the last place and not before.
+This technique is called function currying.
+
+>def calculateBill(price:Int, qnty:Int, gst:Int, deliveryCharge:Int)={
+price * qnty * (1 + gst/100.0f) + deliveryCharge } 
+calculateBill: (price: Int, qnty: Int, gst: Int, deliveryCharge: Int)Float
+scala> calculateBill(100,2,18,50) //res6: Float = 286.0
+
+scala> def calculateBill(gst:Int)(deliveryCharge:Int)(price:Int)(qnty:Int)={
+     | price * qnty * (1+gst/100.0f) + deliveryCharge }
+calculateBill: (gst: Int)(deliveryCharge: Int)(price: Int)(qnty: Int)Float
+
+If u feel only gst is fixed and sometime deliverycharge may differ, u create a reference to available like this scala> val gstApplied=calculateBill(18)_   //gstApplied: Int => (Int => (Int => Float)) = …. 
+scala> gstApplied(50)(1000)(2) //res7: Float = 2410.0002
+
+scala> val deliveryAndGstApplied=calculateBill(18)(50)_
+deliveryAndGstApplied: Int => (Int => Float) = $$Lambda$1255/1663926630@151ce559
+
+scala> val deliveryAndGstApplied=gstApplied(5) //gst is already applied, 50 is delivery charges
+deliveryAndGstApplied: Int => (Int => Float) = $$Lambda$1253/1087227456@4aed4ff
+scala> deliveryAndGstApplied(1000)(2) //res8: Float = 2365.0002
+
+------------- Function with Default Values:
+scala> def div(num1:Int,num2:Int=2):Float={num1/num2.toFloat} ; div(5,2)
+div: (num1: Int, num2: Int)Float  //res9: Float = 2.5
+
+Let's create the same fun. with default value: 
+scala> def div(num1:Int=10,num2:Int):Float={num1/num2.toFloat}
+div: (num1: Int, num2: Int)Float 
+scala> div(5,2) //res12: Float = 2.5
+scala> div() //res17: Float = 5.0  //Noneed to give any argu. but empty '()' is mandatory.
+
+What if we want to pass value of 1st parameter only?
+scala> div(4) ; div(num2=10) //res18: Float = 1.0
+scala> div(4) //res19: Float = 2.0
+scala> div(num2=10) //res20: Float = 1.0
+scala> div(num2=5,num1=2) //res21: Float = 0.4
+
+Can't use named parameter befour the positional parameter will get below error:
+scala> div(num2=5,3) //<console>:13: error: positional after named argument.  div(num2=5,3)
+
+---------------- Function within a Function: 
+object FunUnderFun{
+  def sayHello(userName:String)={
+    def greet(msg:String,userName:String)={ s"Hello, ${msg} : ${userName}" }
+    greet("Good Morning", userName) 
+  }
+  def main(args: Array[String]): Unit = {
+    val result=sayHello("Suraz")
+    println(result)   }   //Hello, Good Morning : Suraz
+------------------ Recursion and Tail Recursion:
+A function calling itself is called Recursion. Example:
+5! = 5 * 4!
+       5 *  4 * 3!
+       5 *  4 * 2 * 1!
+       5 *  4 * 2 * 1
+object FunUnderFun{
+  def factorial(num: BigInt):BigInt = { //u munst specify the return type here
+    	if(num==1) 1
+    	else num * factorial(num-1)         }
+  def main(args: Array[String]): Unit = {
+    val result=factorial(50)
+    println(result)}}//30414093201713378043612608166064768844377641568960512000000000000
+The above logic can also be writed using simple loop:
+def factorial(num: BigInt):BigInt = { //u munst specify the return type here
+  	var result:BigInt=1 ;   	var tempNum=num
+  	while (tempNum > 1){ result= result*tempNum ; tempNum -=1}
+  	result }
+---------- Functional Approach:
+scala> def factorial(n:BigInt):BigInt=(BigInt(1) to n).foldLeft(BigInt(1))(_*_) 
+scala> def factorial(n:BigInt):BigInt=(BigInt(1) to n).product  //factorial: (n: BigInt)BigInt 
+scala> factorial(50)
+res23: BigInt = 30414093201713378043612608166064768844377641568960512000000000000
+
+
+----------- What is a Tail Recursion?: 
+It is a fun. Where u end up either return some value or just calling the same fun again.
+Why below recursive program is not tail recursive?
+  def main(args: Array[String]): Unit = {
+    val result=factorial(50)
+    println(result)
+  }
+  def factorial(num: BigInt):BigInt = { //u munst specify the return type here
+    if(num==1)1
+    else num * factorial(num-1)  // this method is being called repeatedly by multiplying with num
+  }
+}//30414093201713378043612608166064768844377641568960512000000000000
+
+def factorial(acc: BigInt, num: BigInt):BigInt = { //u munst specify the return type here
+  if(num==1)1
+  else factorial(acc * num, num-1)  }
+
+def factorial(num: BigInt):BigInt = { //u munst specify the return type here
+  if(num==1)1
+  else num * factorial(num-1)  // this method is being called repeatedly by multiplying with num
+}
+
+def main(args: Array[String]): Unit = {
+    val result=factorial(50)
+    println(result)
+  }
+  def factorial(num: BigInt):BigInt = { //u munst specify the return type here
+    fact(1,num)
+  }
+import scala.annotation.tailrec
+  @tailrec
+  private def fact(acc: BigInt, num:BigInt):BigInt = { //u munst specify the return type here
+    if(num==1)acc
+    else fact(acc*num, num-1) } // this method is being called repeatedly by multiplying with num
+--------------
+def factorial(num: BigInt):BigInt = { 
+@ scala.annotation.tailrec
+ def fact(acc: BigInt, num:BigInt):BigInt = {  if(num==1) acc; else fact(acc*num, num-1) }
+  fact(1,50) }
+
+Note: @scala.annotation.tailrec isnot mandatory. Itis just make sure that the compiler can help us with error ifour method is not tail recursive.
+
+
+Let's try another example: Sum of all the element inthe list. using tail recursion
+val numList=List(1,2,3,4,5); println(numList.sum) //115
+
+let's try to sum it using recursion:
+1 2 3 4 5 => 1+sum(2,3,4,5)
+		2+sum(3,4,5)
+		  3+sum(4,5)
+ 		    4+sum(5)
+			  5
+
+Using a recursion technique:
+def main(args: Array[String]): Unit = {	
+	  val numList=List(1,2,3,4,5)	
+	  val result=sum(numList)	     
+	  println("result:" +result)              }
+
+def sum(list:List[Int]):Int={
+    if(list.length==1) return list.head
+    else list.head + sum(list.tail)  }	
+
+//sum() can also be written like below
+def sum(list: List[Int]):Int = list match {
+	case Nil => 0	
+	case h :: t  => h+sum(t)	      }
+
+
+--------------Assignment:Part2:PAGE14:
+Assignment:Part2:PAGE14
+Find out the Fibonacci of any number. the Fibonacci series is 1 1 2 3 5 8 13 21 34 55
+if we say, what the Fibonacci in 5th place. its 5, what's in 10th place, its 55
+So, write a tail recursive program to find out that. Below is the recursive program for the same:
+
+object Fibonacci{
+  def main(args: Array[String]): Unit = { val result = fib(10);  println(result)   }
+  def fib(n: Int):Int = if(n > 1) fib(n-1) + fib(n-2) ;  else n  }//55
+
+
+def getFibonacci(index: Int): Int = {
+  @annotation.tailrec
+  def getTailRec(index: Int, prev: Int, current: Int): Int = {
+    if (index <= 0) {
+      current
+    } else {
+      getTailRec(index - 1, prev = prev + current, current = prev)
+    }
+  }
+
+  getTailRec(index, prev = 1, current = 0)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

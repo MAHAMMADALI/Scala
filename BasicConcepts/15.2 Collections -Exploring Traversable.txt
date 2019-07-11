@@ -1,0 +1,287 @@
+-------------- 15.2 Collections - Exploring Traversable -------------- 
+scala> numList.count(_%2 !=0) //res6: Int = 5
+scala> num=>num%2==0 //<console>:1: error: ';' expected but '=>' found. num=>num%2==0
+Note: In the above code snippet, num=>num%2==0 is an anonymous function, and u can't just execute in the scala prompt.
+
+But, u can create an anonymous function as shown below and use it as predicate.
+scala> val evenFun=(num:Int)=> num % 2 ==0 //evenFun: Int => Boolean = $$Lambda$148/@
+scala> numList.count(evenFun) //res7: Int = 5
+
+--- diff
+scala> val numList1=List(1,2,3,4,5) ; val numList2=List(4,5,6,7,8)
+numList1: List[Int] = List(1, 2, 3, 4, 5)
+numList2: List[Int] = List(4, 5, 6, 7, 8)
+scala> numList1 diff  numList2  //res8: List[Int] = List(1, 2, 3)
+scala> numList2 diff  numList1   //res9: List[Int] = List(6, 7, 8)
+
+------ Drop: Returns all elements in the collection except the first N elements.
+scala> numList //res13: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+scala> numList drop 2   //res14: List[Int] = List(3, 4, 5, 6, 7, 8, 9, 10)
+scala> numList drop 5   //res15: List[Int] = List(6, 7, 8, 9, 10)
+
+Note: It doesn't throw exception if we try dropping more element that list size. 
+And also doesn't throw exception if we pass (-ve) value.
+scala> numList drop 11 //res17: List[Int] = List()
+scala> numList drop -1 //res18: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+scala> numList drop 0  //res19: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+scala> numList drop -(-1) //res20: List[Int] = List(2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+----- dropWhile
+scala> val numList = List(1,2,3,4,5) //numList: List[Int] = List(1, 2, 3, 4, 5)
+scala> numList dropWhile(num=>num==1) //res21: List[Int] = List(2, 3, 4, 5)
+
+NOTE: It didn't drop anything because the 1st element didn't match 2, and it will not check the 2nd  element. It'll drop all those elements which keeps satisfying from the beginning.
+
+scala> numList dropWhile(num=>num==2) //res22: List[Int] = List(1, 2, 3, 4, 5)
+
+scala> val numList1=List(2,4,6,8,9,10) //numList1: List[Int] = List(2, 4, 6, 8, 9, 10)
+scala> numList1 dropWhile(num=>num%2==0) //res23: List[Int] = List(9, 10)
+
+------- 6. take: Returns the first n elements of the collection. Syntax: c take n
+scala> numList1 take 2
+res24: List[Int] = List(2, 4)
+
+---- 7. takeWhile: Returns elements from the collection while the predicate is true. Stops when the predicate becomes false. Syntax: c takeWhile p
+scala> numList1 takeWhile(num => num%2==0) //res25: List[Int] = List(2, 4, 6, 8)
+
+--- 8. Span: Returns a Tuple of 2 collections; the 1st created by c.takeWhile(p), & 2nd created by c.dropWhile(p). Syntax: c span p
+scala> numList1 takeWhile(num=>num%2==0) //res26: List[Int] = List(2, 4, 6, 8)
+
+scala> numList1 dropWhile(num=>num%2==0) //res27: List[Int] = List(9, 10)
+
+>numList1 span(num=>num%2==0)//res28:(List[Int], List[Int])= (List(2, 4, 6, 8),List(9, 10))
+
+----- 9. Partition: Returns 2 collections according to the predicate algorithm. The predicate will either return true or false. So, all the elements for which the predicate is true will be grouped into 1 unit and the remaining will be group to another unit. Syntax c partition p
+scala> val numList = 1 to 10 toList //numList: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+scala>val v=numList partition(_%2==0)//v:(List[Int], List[Int])=(List(2, 4, 6, 8, 10),List(1, 3, 5, 7, 9))
+
+----- 10. exists: Returns true if predicate is true for any element in the collection.
+scala> numList exists(_%2==0) //res29: Boolean = true
+scala> numList exists(_>11)  //res30: Boolean = false
+
+---- 11. filter: Returns all elements from the collection fro which the predicate is true.
+scala> numList filter(_%2==0) //res33: List[Int] = List(2, 4, 6, 8, 10)
+
+---- 12. filterNot: Returns all elements from the collection from which the predicate is false.
+scala> numList filterNot(_%2==0) //res34: List[Int] = List(1, 3, 5, 7, 9)
+
+--- 13. find: returns  1stelement that matches the predicate as Some[A]. Returns None if no match.
+scala> numList find(_==10)  //res36: Option[Int] = Some(10)
+scala> numList find(_%2==0)  //res37: Option[Int] = Some(2)
+scala> numList find(_==22) //res38: Option[Int] = None
+
+---- 14. flatten: Converts a collection of collections(such as a list of list) to a single collection(single list). Itis usually used to eliminate undesired collection nesting. Syntax c flatten
+scala> val numList1=List(1,2,3,4,5); val numList2=List(6,7,8,9,10)
+numList1: List[Int] = List(1, 2, 3, 4, 5)
+numList2: List[Int] = List(6, 7, 8, 9, 10)
+scala> val numList3=List(numList1, numList2) 
+numList3: List[List[Int]] = List(List(1, 2, 3, 4, 5), List(6, 7, 8, 9, 10))
+'import scala.language.postfixOps'
+scala> val numList4=numList3 flatten        //numList4: List[Int] = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+------ flatMap = map+flatten( and not flatten + map)
+scala> var nameList=List("Suraj","Prasad","Ghimre") 
+nameList: List[String] = List(Suraj, Prasad, Ghimre)
+
+scala> nameList.flatMap(_.toUpperCase)
+res0: List[Char] = List(S, U, R, A, J, P, R, A, S, A, D, G, H, I, M, R, E)
+
+scala> List(1,2,3,4,5) flatMap(num=>num*2) //<console>:12: error: type mismatch; 
+found   : Int 
+required: scala.collection.GenTraversableOnce[?] List(1,2,3,4,5) flatMap(num=>num*2)
+
+scala> List(1,2,3,4,5) flatMap(num=>List(num*2)) //res2: List[Int] = List(2, 4, 6, 8, 10)
+
+scala> val numList = List(1,2,3,4,5) //numList: List[Int] = List(1, 2, 3, 4, 5)
+
+scala> numList.flatMap{x=> if(x<=3) Some(x*2) else None } //res5: List[Int] = List(2, 4, 6)
+
+scala> List(1,4,9).flatMap{x => List(x,x+1)}  //res9: List[Int] = List(1, 2, 4, 5, 9, 10)
+
+scala> List(1,4,9).flatMap{ x => if(x>5)List() else List(x)} //res10: List[Int] = List(1, 4)
+
+Assume u have a list which contains Int and String values.
+scala>val numList=List("1","2","Apple","ball","4")//numList: List[String] = List(1, 2, Apple, ball, 4)
+
+Let's write a fun, which can accept a String and return u an Integer.
+scala> def toInt(in:String):Option[Int]={
+     |  try{ Some(Integer.parseInt(in.trim))}
+     |  catch{ case e: Exception => None }
+     | }  //toInt: (in: String)Option[Int]
+
+scala> numList.flatMap(toInt)  //res11: List[Int] = List(1, 2, 4)
+scala> numList.map(toInt) 
+res12: List[Option[Int]] = List(Some(1), Some(2), None, None, Some(4))
+
+scala> numList.map(toInt).flatten
+res13: List[Int] = List(1, 2, 4)
+
+------- 16. map:
+scala> "Hello".map(_.toUpper) //res15: String = HELLO
+scala> Array(1,2,3).map(_*2)  //res16: Array[Int] = Array(2, 4, 6)
+
+scala> Set(1,2,2,3).map(_*2)  //res17: scala.collection.immutable.Set[Int] = Set(2, 4, 6)
+
+scala> (0 until 5).map(_*2)//res18:scala.collection.immutable.IndexedSeq[Int]=Vector(0, 2, 4, 6, 8)
+
+map() returning Map: 
+scala> Map("Key1" -> 1, "Key2" ->2).map(kv=>(kv._1, kv._2))
+res20: scala.collection.immutable.Map[String,Int] = Map(Key1 -> 1, Key2 -> 2)
+
+scala> Map("Key1" -> 1, "Key2" ->2).map{ case(key,value)=>(key,value*2) }
+res21: scala.collection.immutable.Map[String,Int] = Map(Key1 -> 2, Key2 -> 4)
+Note: When using case approach, map should be written as map{} but not map()
+When using this approach, map{} can be written as map():
+scala> Map("Key1" -> 1, "Key2" ->2).map{ 
+                                                                        keyValue => keyValue match { 
+                                                                        case (key,value)=>(key,value*2)}
+                                                                 }
+res22: scala.collection.immutable.Map[String,Int] = Map(Key1 -> 2, Key2 -> 4)
+map() returning List:
+scala> Map("Key1" -> 1, "Key2" ->2).map{ case (key,value)=> value * 2 }
+res23: scala.collection.immutable.Iterable[Int] = List(2, 4)
+
+map() returning Set:
+scala> Map("Key1" -> 1, "Key2" ->2).map{ case (_,value) => value * 2 }.toSet
+res24: scala.collection.immutable.Set[Int] = Set(2, 4)
+
+------- foldLeft()
+scala> val inputList= 1 to 5 toList  //inputList: List[Int] = List(1, 2, 3, 4, 5)
+
+scala> inputList.foldLeft(0){ (acc,i) => {println(s"$acc $i"); acc + i } }
+0 1
+1 2
+3 3
+6 4
+10 5
+res25: Int = 15
+
+scala> inputList.foldLeft(0)(_ + _) //making it more simple  //res26: Int = 15
+
+scala> inputList.foldLeft(2){ (acc, i) => acc + i } //res29: Int = 17
+
+scala> inputList.length //res30: Int = 5
+scala> inputList.foldLeft(0){ (count,_) => count + 1 } //res31: Int = 5
+
+----------- 18. foldRight:
+scala> inputList.foldRight(2){ (i,acc) => println(s"$i $acc"); acc + i }
+5 2
+4 7
+3 11
+2 14
+1 16
+res32: Int = 17
+--------- 19. fold
+scala> inputList    //res3: List[Int] = List(1, 2, 3, 4, 5)
+
+scala> List(1,3,5,7,9).fold(0)(_+_) //res4: Int = 25
+scala> inputList.fold(0){ (acc,i) => println(s"$acc $i"); acc+i}
+0 1
+1 2
+3 3
+6 4
+10 5 //res6: Int = 15
+
+----------20. reduceLeft
+scala> inputList.reduceLeft{ (num1, num2) => { println(s"$num1 $num2"); num1 + num2} }
+1 2
+3 3
+6 4
+10 5 //res7: Int = 15
+
+scala> val numList=List(1,5,7,2,9) //find out the max num inthis list
+
+scala> val findMax=(x:Int, y:Int) => {x max y }
+findMax: (Int, Int) => Int = $$Lambda$1149/1128952562@5c8e7687
+
+scala> numList.reduceLeft(findMax) //res8: Int = 9
+
+scala> numList.reduceLeft(_ max _) //res9: Int = 9
+
+---------- 21. reduceRight
+scala> inputList.reduceRight{ (num1, num2) => {println(s"$num1 , $num2"); num1+num2 }}
+4 , 5    // here inputList = List(1, 2, 3, 4, 5) ]
+3 , 9
+2 , 12
+1 , 14  //res11: Int = 15
+
+---------- 22. ScanLeft and ScanRight: They are very similar to reduceLeft and reduceRight. They go element to element and then do the calculation and then returns back the array.
+ scala> val product=(x:Int, y:Int)=>{ println(s"$x $y"); x * y }
+product: (Int, Int) => Int = $$Lambda$1196/80052754@6236beac
+scala> val numList=1 to 5 toList //numList: List[Int] = List(1, 2, 3, 4, 5)
+
+scala> numList.scanLeft(10)(product)
+10 1
+10 2
+20 3
+60 4
+240 5  //res13: List[Int] = List(10, 10, 20, 60, 240, 1200)
+------- 23. distinct: 
+scala> val numList=List(1,2,3,1,4,5,2)  //numList: List[Int] = List(1, 2, 3, 1, 4, 5, 2)
+
+scala> numList.distinct  //res15: List[Int] = List(1, 2, 3, 4, 5)
+
+scala> numList.toSet //res16: scala.collection.immutable.Set[Int] = Set(5, 1, 2, 3, 4)
+
+scala> numList.toSet.toList //res17: List[Int] = List(5, 1, 2, 3, 4)
+
+------- 24. sliding
+scala> val numList = (1 to 5).toArray //numList: Array[Int] = Array(1, 2, 3, 4, 5)
+
+scala> numList.sliding(2).toList
+res18: List[Array[Int]] = List(Array(1, 2), Array(2, 3), Array(3, 4), Array(4, 5))
+
+scala> numList.sliding(3)  //res19: Iterator[Array[Int]] = <iterator>
+
+scala> numList.sliding(3).toList
+res20: List[Array[Int]] = List(Array(1, 2, 3), Array(2, 3, 4), Array(3, 4, 5))
+
+sliding(m,n): 
+scala> numList //res22: Array[Int] = Array(1, 2, 3, 4, 5)
+
+>numList.sliding(2,2).toList //res23: List[Array[Int]] = List(Array(1, 2), Array(3, 4), Array(5))
+
+scala> numList.sliding(2,3).toList //res24: List[Array[Int]] = List(Array(1, 2), Array(4, 5))
+
+scala> numList.sliding(2,4).toList  //res25: List[Array[Int]] = List(Array(1, 2), Array(5))
+
+------ Assignment:  PAGE 14:
+IQ @ Paypal: Input: List(List(1,2), List(3,4), List(5,6)
+             Output: List(List(2,3),List(4,5), List(6,7)) 
+Hint: Flatten and map to increment 1, and then sliding.
+
+-------- 25. forall: c forall p : 
+scala> val evenList=List(2,4,6,8,10,12) //evenList: List[Int] = List(2, 4, 6, 8, 10, 12)
+
+scala> evenList forall (num => num%2 ==0) //res26: Boolean = true
+scala> evenList.forall(num => num%2==0 && num <12)  //res27: Boolean = false
+
+---- 26: foreach: 
+scala> List("Apple", "Amazon", "Alibaba").foreach(println)
+Apple
+Amazon
+Alibaba
+scala> List("Apple", "Amazon", "Alibaba").foreach(name=> {println(name.length)})
+5 6 7 
+scala> List("Apple", "Amazon", "Alibaba").foreach(name=> {(name.length)})
+ //no  output as foreach will not return
+----27. groupBy: Partitions the collection into a Map of collections according to the function. 
+c groupBy f
+scala> List("Apple", "Amazon", "Alibaba", "Belly", "Bombay", "Bengal").groupBy(name=>name.charAt(0))  // returns a Map[Char,List[String]]
+res33: scala.collection.immutable.Map[Char,List[String]] = 
+Map(A -> List(Apple, Amazon, Alibaba), B -> List(Belly, Bombay, Bengal))
+
+//Below code returns a Map[Int,List[String]]
+scala> List("Apple", "Amazon", "Alibaba", "Belly", "Bombay", "Bengal").groupBy(_.length)
+res34: scala.collection.immutable.Map[Int,List[String]] = 
+Map(5 -> List(Apple, Belly), 7 -> List(Alibaba), 6 -> List(Amazon, Bombay, Bengal))
+
+
+
+
+
+
+
+
+
+
