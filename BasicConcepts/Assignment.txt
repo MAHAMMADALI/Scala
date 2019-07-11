@@ -17,7 +17,7 @@ object PS1StringFilling {
     if (num < 0) strNum = "0"
     else if (num.toString.length > limitTo)
       strNum = num.toString.substring(0, limitTo)
-      "0" * (limitTo - strNum.length) + strNum
+    "0" * (limitTo - strNum.length) + strNum
   }
   def main(args: Array[String]): Unit = {
     println("leftPad(123, 5):" + leftPad(123, 5))
@@ -111,12 +111,69 @@ case convert of string 1$23%45 : 12345
 =========================================
 Strings P-no: 15
 ----------------
-
 produce the age of the customer provided you a given with date of Birth as well as format in the below format.
-"25-01-1989".age("dd-mm-yyyy") //29Y04M20D
-"25011989".age("ddmmYYYY") //29Y04M20D
-"01251989".age("MMDDYYYY") //29Y04M20D
+"25-01-1989".age("dd-MM-yyyy") //29Y04M20D
+"25011989".age("ddMMYYYY") //29Y04M20D
+"01251989".age("MMddyyyy") //29Y04M20D
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.Period
+import java.util.Calendar
+import java.util.Date
 
+object AgeCalculation extends App {
+  age("dd-MM-yyyy","05-05-2018")
+  age("ddMMyyyy","05052018")
+  age("MMddyyyy","05052018")
+
+  def age(pattern:String, dob:String)={
+    pattern match {
+      case "dd-MM-yyyy" =>  formatDate(pattern:String, dob:String)
+      case "ddMMyyyy" => {
+        var temp = ""
+        var fmt = ""
+        fmt = pattern.slice(0, 2) + "-" + pattern.slice(2, 4) + "-" + pattern.slice(4, dob.length)
+        temp = dob.slice(0, 2) + "-" + dob.slice(2, 4) + "-" + dob.slice(4, dob.length)
+         formatDate(fmt:String, temp:String)
+      }
+      case "MMddyyyy" => {
+        var temp = ""
+        var fmt = ""
+        fmt = pattern.slice(2, 4) + "-" + pattern.slice(0, 2) + "-" + pattern.slice(4, pattern.length)
+        temp = dob.slice(2, 4) + "-" + dob.slice(0, 2) + "-" + dob.slice(4, dob.length)
+        formatDate(fmt:String, temp:String)
+      }
+      case _ => println("wrong Date formate please try with dd-mm-yyyy or ddmmYYYY or MMDDYYYY")
+    }
+  }
+
+  def formatDate(format:String, dob:String): Unit ={
+    val simpleDateFormat = new SimpleDateFormat(format)
+    val sdf = simpleDateFormat.parse(dob)
+    val calendar = Calendar.getInstance()
+    calendar.setTime(sdf)
+    val year = calendar.get(Calendar.YEAR)
+    val month = calendar.get(Calendar.MONTH)+1
+    val date = calendar.get(Calendar.DATE)
+    val givenDate = LocalDate.of(year,month,date)
+    val currentDate = LocalDate.now()
+    val ageAsOfToday = Period.between(givenDate, currentDate)
+    var ageY = ageAsOfToday.getYears
+    var ageM = leftPad(ageAsOfToday.getMonths)
+    var ageD = leftPad(ageAsOfToday.getDays)
+    println(ageY+"Y"+ageM+"M"+ageD+"D")
+  }
+  
+  def leftPad(num: Int): String = {
+    val limitTo: Int = 2
+    var strNum = num.toString
+    if (num < 0) strNum = "0"
+    else if (num.toString.length > limitTo)
+      strNum = num.toString.substring(0, limitTo)
+    "0" * (limitTo - strNum.length) + strNum
+  }
+}
 
 =========================================
 2. Create an Employee class with fields name, salary, DOB.
@@ -190,8 +247,238 @@ object StringACIISum {
     print(findGreatestByUnicode(nameList))
   }
 }
-=================
+================= Threads ================
+Don't split the entire list into multiple sublist with the data.
+Insted calculate the from and to index for each such operation and directly split that from each Thread.
+import java.util
+
+class MyThread(list:List[Int]) extends Runnable{
+  override def run()={
+   // println(s"current Thread Running ${Thread.currentThread().getName}")
+    val sum = list.reduce(_+_)
+    println(s"Thread sum of $list  ${Thread.currentThread().getName} : $sum")
+    Thread.sleep(1000)
+    // println(s"Calculation takes 1 secs:  ${Thread.currentThread().getName}")
+  }
+}
+object SubListThread {
+  def main(args: Array[String]): Unit = {
+    val numList = (1 to 100)
+    val batchSize = 10
+
+    val totalSubListSize = Math.ceil(numList.size / batchSize.toFloat).toInt
+    //val listone = new util.ArrayList[Int]
+    for (i <- 0 to totalSubListSize-1) {
+      var subList: List[Int] = null
+      if (i != totalSubListSize  ) subList = numList.slice(i * batchSize, (i + 1) * batchSize).toList
+      else subList=numList.slice(i*batchSize, numList.length).toList
+        val runnable = new MyThread(subList)
+        val th = new Thread(runnable)
+        th.start()
 
 
+    }
+  }
+}
+Thread sum of List(31, 32, 33, 34, 35, 36, 37, 38, 39, 40)  Thread-3 : 355
+Thread sum of List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)  Thread-0 : 55
+Thread sum of List(81, 82, 83, 84, 85, 86, 87, 88, 89, 90)  Thread-8 : 855
+Thread sum of List(91, 92, 93, 94, 95, 96, 97, 98, 99, 100)  Thread-9 : 955
+Thread sum of List(21, 22, 23, 24, 25, 26, 27, 28, 29, 30)  Thread-2 : 255
+Thread sum of List(41, 42, 43, 44, 45, 46, 47, 48, 49, 50)  Thread-4 : 455
+Thread sum of List(51, 52, 53, 54, 55, 56, 57, 58, 59, 60)  Thread-5 : 555
+Thread sum of List(71, 72, 73, 74, 75, 76, 77, 78, 79, 80)  Thread-7 : 755
+Thread sum of List(11, 12, 13, 14, 15, 16, 17, 18, 19, 20)  Thread-1 : 155
+Thread sum of List(61, 62, 63, 64, 65, 66, 67, 68, 69, 70)  Thread-6 : 655
+----------------- Assignment: Functional Programming: PAGE 9 -----------------------
+Create a method employeeService() similar to executeMe, where you prepare a list of names as shownbelow:
+val empList=List("Suraj","Kiran","Isha","Bobby","Hemant")
+employeeService will accept a function that takes a parameter of empList.
+Create the above 3 function variable that accepts empList and prints the desired output:
+1. highestLength: takes empList and prints employee with the highest length. if 2 employee has same size, print both of them, Maintain it in temp list.
+2. lowestLength : takes empList and prints employee with the lowest length. if 2 employee has same size, print both of them. Maintain it in temp list.
+3. reverse: takes empList and prints each employee inthe revers order.
+and these will be called as below:
+employeeService(highestLength), employeeService(lowestLength), employeeService(reverse)
+bject EmployeesList extends  App {
+
+  val empList=List("Suraj","Kiran","Isha","Bobby","Hemanth", "1234")
+
+  def employeeService( f:List[String]=>List[String], el:List[String]):List[String]={f(el)}
+
+  employeeService(highestLength, empList).foreach(println)
+  employeeService(lowestLength, empList).foreach(println)
+  employeeService(reverse, empList).foreach(println)
+
+  def highestLength(eList:List[String]): List[String] ={
+    val maxStringLength = eList.reduce((a,b) =>  {if (a.length > b.length)a else b})
+    val maxString = eList.filter( str => (str.length == maxStringLength.length))
+    println(s"Names with the Max length : ")
+    maxString
+    /*import scala.collection.mutable.ArrayBuffer
+    var tempList=new ArrayBuffer[String]()
+    var maxLength = 0
+    var longestString = ""
+    for (str <- eList)  if (str.length > maxLength){ maxLength = str.length}
+    for (str <- eList)  if (str.length == maxLength) tempList += str
+    tempList.toList */
+  }
+  def lowestLength (eList:List[String]): List[String] ={
+    val minStringLength = eList.reduce((a,b) =>  {if (a.length < b.length)a else b})
+    val minString = eList.filter( str => (str.length == minStringLength.length))
+    println(s"Names with the Min length : ")
+    minString
+    /*import scala.collection.mutable.ArrayBuffer
+    var tempList=new ArrayBuffer[String]()
+    var minLength = 0
+    var longestString = ""
+    for (str <- eList)  if (str.length < minLength) minLength = str.length
+    for (str <- eList)  if (str.length == minLength) tempList += str
+    println(s"Names with the same length : ")
+    tempList.toList*/
+  }
+  def reverse(eList:List[String]): List[String] ={
+    val reverseStr = eList.map( str => str.reverse)
+    println(s"Names inthe reverse order : ")
+    reverseStr
+  }
+}
+**Assignment1 PAGE 12: covert all above hard coded fun to dynamic fun sothat u pass any value.
+scala> def executeMe(m1:(Int)=>Int){m1(2)}
+scala> def executeMe(m1:Int => Int, num:Int):Int= {m1(num)}
+
+def executeMe(m1:Int => Int, num:Int):Int= {m1(num)}  //defining a function
+val executeMe = (m1:Int => Int, num:Int) => {m1(num)} // variable declaration 
+val executeMe:(m1(Int) => Int, Int) => Int = (m1, num) => {m1(num)}
+
+executeMe: (m1: Int => Int, num: Int)Int
+scala> executeMe(double,3) //res2: Int = 6
+
+**Assignment2: Define a function called ABSquare that takes n1,n2,and returns u Int based on formula [(A+B)2 = A2 +B2 +2AB]
+object ABSquare extends App {
+  println(abSquare(2,3))
+  def abSquare(a:Int, b:Int):Int ={
+    val aSqr = a*a
+    val bSqr = b*b
+    val ab2 = 2*a*b
+    println(s"  ($a + $b)square = $aSqr + $bSqr + 2*${a}*${b} ")
+    aSqr+bSqr+ab2
+  }
+}
+--------------Assignment:Part2:Page:4: 
+1. create a list of numbers, and use collect to call converNumToString such that invalid inputs are not evaluated.
+scala> val convertNumToString=new PartialFunction[Int,String]{
+     | val nums=Array("one","two","three","four","five")
+     | def apply(i:Int)=nums(i-1)
+     | def isDefinedAt(i:Int)= i>0 && i<6 }
+convertNumToString: PartialFunction[Int,String]{val nums: Array[String]} = <function1>
+
+scala> List(1,"Appli",2,"Cat") collect{case num:Int=> if(convertNumToString.isDefinedAt(num))convertNumToString(num)}
+scala> List(1,0,2,3,6,7,8,9)collect{case num:Int=> if(convertNumToString.isDefinedAt(num))convertNumToString(num)}
+res8: List[Any] = List(one, (), two, three, (), (), (), ())
 
 
+2. Define an Employee case class with 4 params, empName, empDept, empDesignation, empSalary
+create a List of 10 employee object, all possible dept is IT,Mgmt.
+Under IT and Mgmt dept, these are the designations:
+IT - CSE,SE,TL,MGR (here cse means: Contract Software Engineer)
+Mgmt - HR, MGR
+MGR of Mgmt are not allowed for hikes
+CSE of IT are not alloed to hikes
+IT- SE= 10% TL=5% MGR=2%
+Mgmt-Hr=3%
+name	Dept	designation	salary
+Raj	IT	CSE	1000
+Anil	IT	SE	5000
+Bindu	Mgmt	MGR	10000
+Chiru	IT	TL	2000
+Hemanth	Mgmt	HR	3000
+Mithun	IT	SE	8000
+Salman	Mgmt	HR	5000
+Nag	IT	CSE	4000
+Partha	Mgmt	MGR	20000
+import java.util
+case class Employee(empName:String, empDept:String, empDesignation:String, empSalary:Float)
+object FPEmployee {
+  val empDetails = new util.ArrayList[Employee]
+  def main(args: Array[String]): Unit = {
+    val rajEmp = Employee("Raj", "IT", "CSE",	1000f);           empDetails.add(rajEmp)
+    val anilEmp = Employee("Anil", "IT", "SE", 5000f);          empDetails.add(anilEmp)
+    val binduEmp = Employee("Bindu", "Mgmt", "MGR", 10000f);    empDetails.add(binduEmp)
+    val chiruEmp = Employee("Chiru", "IT", "TL", 2000f);        empDetails.add(chiruEmp)
+    val hemanthEmp = Employee("Hemanth", "Mgmt", "HR", 3000f);  empDetails.add(hemanthEmp)
+    val mithunEmp = Employee("Mithun", "IT", "SE" ,8000f);      empDetails.add(mithunEmp)
+    val salmanEmp = Employee("Salman", "Mgmt", "HR", 5000f);    empDetails.add(salmanEmp)
+    val nagEmp = Employee("Nag", "IT", "CSE", 4000f);           empDetails.add(nagEmp)
+    val parthaEmp = Employee("Partha", "Mgmt", "MGR", 20000f);  empDetails.add(parthaEmp)
+
+    val itr = empDetails.listIterator
+    while (itr.hasNext){ println(empHikeProcess(itr.next))  }
+  }
+  val empHikeProcess = new PartialFunction[Employee, String] {
+    override def isDefinedAt(emp: Employee): Boolean = { emp.empSalary > 0 }
+    override def apply(emp:Employee): String = {
+      val empIT:String = emp.empDept
+      val empDesignation:String = emp.empDesignation
+      val empDept:String = emp.empDept
+      val empSal:Float = emp.empSalary
+      if((empIT == "IT" && empDesignation == "CSE") || (empDept=="Mgmt" && empDesignation=="MGR")) s"No Hike for Employee ${emp.empName} As there Designation is : ${empDesignation} with Dept ${empDept}"
+      else if (empDept == "IT" && empDesignation=="SE") s"Revised Salary post hike for Employee ${emp.empName} is : ${((emp.empSalary * 0.1) + emp.empSalary)}"
+      else if (empDept == "IT" && empDesignation=="TL") s"Revised Salary post hike for Employee ${emp.empName} is : ${((emp.empSalary * 0.05) + emp.empSalary)}"
+      else if (empDept == "IT" && empDesignation=="MGR") s"Revised Salary post hike for Employee ${emp.empName} is : ${((emp.empSalary * 0.02) + emp.empSalary)}"
+      else s"Revised Salary post hike for Employee ${emp.empName} is : ${((emp.empSalary * 0.03) + emp.empSalary).toFloat}"
+    }
+  }
+}
+No Hike for Employee Raj As there Designation is : CSE with Dept IT
+Revised Salary post hike for Employee Anil is : 5500.0
+No Hike for Employee Bindu As there Designation is : MGR with Dept Mgmt
+Revised Salary post hike for Employee Chiru is : 2100.0
+Revised Salary post hike for Employee Hemanth is : 3090.0
+Revised Salary post hike for Employee Mithun is : 8800.0
+Revised Salary post hike for Employee Salman is : 5150.0
+No Hike for Employee Nag As there Designation is : CSE with Dept IT
+No Hike for Employee Partha As there Designation is : MGR with Dept Mgmt
+
+--------------Assignment:Part2:PAGE14: Rewrite the above program with tail recursive logic
+val numList=List(1,2,3,4,5); println(numList.sum) //115
+let's try to sum it using recursion:		Using a recursion technique: 
+1 2 3 4 5 => 1+sum(2,3,4,5)			def main(args: Array[String]): Unit = {
+		2+sum(3,4,5)			val numList=List(1,2,3,4,5)
+		  3+sum(4,5)			val result=sum(numList)
+ 		    4+sum(5)	      		println("result:" +result)              }
+			  5
+  def sum(list:List[Int]):Int={			//sum() can also be written like below
+    if(list.length==1) return list.head		def sum(list: List[Int]):Int = list match {
+    else list.head + sum(list.tail)		     case Nil => 0
+  }					    	     case h :: t  => h+sum(t)	      }
+
+--------------Assignment:Part2:PAGE14:
+Assignment:Part2:PAGE14
+Find out the Fibonacci of any number. the Fibonacci series is 1 1 2 3 5 8 13 21 34 55
+if we say, what the Fibonacci in 5th place. its 5, what's in 10th place, its 55
+So, write a tail recursive program to find out that. Below is the recursive program for the same:
+
+object Fibonacci{
+  def main(args: Array[String]): Unit = { val result = fib(10);  println(result)   }
+  def fib(n: Int):Int = if(n > 1) fib(n-1) + fib(n-2) ;  else n  }//55
+
+
+def getFibonacci(index: Int): Int = {
+  @annotation.tailrec
+  def getTailRec(index: Int, prev: Int, current: Int): Int = {
+    if (index <= 0) {
+      current
+    } else {
+      getTailRec(index - 1, prev = prev + current, current = prev)
+    }
+  }
+
+  getTailRec(index, prev = 1, current = 0)
+}
+---------- Collection Iterable
+Assignment:  PAGE 14:
+IQ @ Paypal: Input: List(List(1,2), List(3,4), List(5,6)
+                    Output: List(List(2,3),List(4,5), List(6,7)) 
+Hint: Flatten and map to increment 1, and then sliding.
+------------
