@@ -1,0 +1,188 @@
+                                  Working With SCALA String: 
+                                  --------------------------
+import java.lang
+import java.lang.Math
+
+object String1 extends App {
+
+  val str = "Hello"
+  val n = 2
+  val nTwice: (String, Int) => String = (msg, nth) => msg.substring(0, nth) + msg.substring(msg.length - nth, msg.length)
+  //println(nTwice(str,n))
+
+  /* -------------------------------------------------
+  Given a string and an index, return a string length 2 starting at the given index.
+If the index is too big or too small to define a string length 2, use the first 2 chars.
+The string length will be at least 2.
+twoChar("java", 0) → "ja"
+twoChar("java", 2) → "va"
+twoChar("java", 3) → "ja"*/
+  def twoChar(str: String, index: Int): String = {
+    (index >= str.length - 1 || index < 0) match {
+      case true => str.substring(0, 2)
+      case false => str.substring(index, index + 2)
+    }
+  }
+
+  // println(twoChar("java", -1))
+  /*  -------------------------------------------------
+  Given a string of odd length, return the string length 3 from its middle, so "Candy" yields "and". The string length will be at least 3.
+  middleThree("Candy") → "and"
+  middleThree("and") → "and"
+  middleThree("solving") → "lvi" */
+  val middleThree: String => String = str => {
+    val doubleVal = str.length.toDouble / 2
+    val middleVal = (lang.Math.ceil(doubleVal)).toInt
+    str.substring(middleVal - 2, middleVal + 1)
+  }
+  // println(middleThree("and"))
+
+  /* --------------------------
+  Given a string, return true if "bad" appears starting at index 0 or 1 in the string,
+  such as with "badxxx" or "xbadxx" but not "xxbadxx".
+  The string may be any length, including 0. Note: use .equals() to compare 2 strings.
+hasBad("badxx") → true
+hasBad("xbadxx") → true
+hasBad("xxbadxx") → false */
+  def hasBad(str: String): Boolean = {
+    if (str.length == 3 && str == "bad") return true
+    else if (str.length != 0 && str.length >= 4 && (str.substring(0, 3) == "bad" || str.substring(1, 4) == "bad")) return true
+    else return false
+  }
+
+  //println(hasBad("xxbadxx"))
+  /* -----------------------
+Given a string, return a string length 2 made of its first 2 chars. If the string length is less than 2, use '@' for the missing chars.
+atFirst("hello") → "he"
+atFirst("hi") → "hi"
+atFirst("h") → "h@"   */
+  val atFirst: String => String = str => {
+    if (str.length <= 0) "@@"
+    else if (str.length >= 2) str.substring(0, 2)
+    else str + "@"
+  }
+  //println(atFirst(""))
+
+  /* -----------------------------
+Given a string of any length, return a new string where the last 2 chars, if present, are swapped, so "coding" yields "codign".
+lastTwo("coding") → "codign"
+lastTwo("cat") → "cta"
+lastTwo("ab") → "ba" */
+  def lastTwo(str: String): String = if (str == "" || str.length == 1) return str
+  else if (str.length == 2) return str.substring(1) + str.charAt(0)
+  else return str.substring(0, str.length - 2) + str.charAt(str.length - 1) + str.charAt(str.length - 2)
+
+  //println(lastTwo("coding"))
+
+  /*-----------------
+  Given a string, if the string begins with "red" or "blue" return that color string, otherwise return the empty string.
+  seeColor("redxx") → "red"
+  seeColor("xxred") → ""
+  seeColor("blueTimes") → "blue" */
+  def seeColor(str: String): String = if (str.length >= 3 && str.substring(0, 3).equals("red")) return "red"
+  else if (str.length >= 4 && str.substring(0, 4).equals("blue")) return "blue"
+  else return ""
+
+  /* ---- Given a string, return true if the first 2 chars in the string also appear at the end of the string, such as with "edited".
+  frontAgain("edited") → true
+  frontAgain("edit") → false
+  frontAgain("ed") → true*/
+  def frontAgain(str: String): Boolean = if (str.length >= 2 && str.substring(0, 2) == str.substring(str.length - 2)) return true
+  else return false
+
+  println(seeColor("kjkred"))
+
+  /*----- Given two strings, append them together (known as "concatenation") and return the result.
+However, if the strings are different lengths, omit chars from the longer string so it is the same length as the shorter string.
+So "Hello" and "Hi" yield "loHi". The strings may be any length.
+minCat("Hello", "Hi") → "loHi"
+minCat("Hello", "java") → "ellojava"
+minCat("java", "Hello") → "javaello" */
+  def minCat(a: String, b: String): String = if (a.length == b.length) return a + b
+  else if (a == "" || b == "") return ""
+  else if (a.length > b.length) return a.substring(a.length - b.length) + b
+  else return a + b.substring(b.length - a.length)
+
+
+  /* ---- Given a string, return a new string made of 3 copies of the first 2 chars of the original string.
+The string may be any length. If there are fewer than 2 chars, use whatever is there.
+extraFront("Hello") → "HeHeHe"
+extraFront("ab") → "ababab"
+extraFront("H") → "HHH" */
+  def extraFront(str:String):String= if (str.length > 2) return str.substring(0, 2) + str.substring(0, 2) + str.substring(0, 2)
+  else return str + str + str
+/* ------- Given a string, if a length 2 substring appears at both its beginning and end,
+return a string without the substring at the beginning, so "HelloHe" yields "lloHe".
+The substring may overlap with itself, so "Hi" yields "".
+Otherwise, return the original string unchanged.
+without2("HelloHe") → "lloHe"
+without2("HelloHi") → "HelloHi"
+without2("Hi") → "" */
+  def without2(str:String):String= if (str.length > 2 && str.substring(0, 2) == str.substring(str.length - 2)) return str.substring(2)
+  else if (str.length == 2) return ""
+    else return str
+
+  /* -- Given a string, return a version without the first 2 chars.
+  Except keep the first char if it is 'a' and keep the second char if it is 'b'. The string may be any length. Harder than it looks.
+  deFront("Hello") → "llo"
+  deFront("java") → "va"
+  deFront("away") → "aay" */
+def deFront(str:String):String= if (str.length > 3) {
+  val char2 = str.substring(2)
+  if (str.charAt(0) == 'a' && str.charAt(1) == 'b') return "ab" + char2
+  else if (str.charAt(1) == 'b') return "b" + char2
+    else if (str.charAt(0) == 'a') return "a" + char2
+      else return str.substring(2)
+}
+else if (str.length == 3) if (str.charAt(0) == 'a' && str.charAt(1) == 'b') return "ab" + str.substring(str.length - 1)
+    else if (str.charAt(0) == 'a') return "a" + str.substring(str.length - 1)
+      else if (str.charAt(1) == 'b') return "b" + str.substring(str.length - 1)
+        else return str.substring(str.length - 1)
+  else if (str.length == 2) if (str.charAt(0) == 'a' && str.charAt(1) == 'b') return "ab"
+      else if (str.charAt(0) == 'a') return "a"
+        else if (str.charAt(1) == 'b') return "b"
+          else return ""
+    else if (str.length == 1) if (str.charAt(0) == 'a') return "a"
+        else return ""
+      else return ""
+
+  /* -----  Given a string and a second "word" string, we'll say that the word matches the string if it appears at the front of the string,
+  except its first char does not need to match exactly.
+  On a match, return the front of the string, or otherwise return the empty string.
+  So, so with the string "hippo" the word "hi" returns "hi" and "xip" returns "hip". The word will be at least length 1.
+  startWord("hippo", "hi") → "hi"
+  startWord("hippo", "xip") → "hip"
+  startWord("hippo", "i") → "h" */
+def startWord(str:String, word:String):String={
+  if (str.length == 1 && word.length == 1) return str
+  if ((str == "" || str.length == 1) && word.length > 0) return ""
+  if (str.substring(0, word.length) == word || str.substring(1, word.length) == word.substring(1)) return str.substring(0, word.length)
+  else return ""
+}
+  /* --- Given a string, if the first or last chars are 'x', return the string without those 'x' chars, and otherwise return the string unchanged.
+  withoutX("xHix") → "Hi"
+  withoutX("xHi") → "Hi"
+  withoutX("Hxix") → "Hxi" */
+def withoutX(str:String):String={
+  if (str == "" || str.length == 1) return ""
+  if (str.charAt(0) == 'x' && str.charAt(str.length - 1) == 'x') return str.substring(1, str.length - 1)
+  else if (str.charAt(0) == 'x' && str.charAt(str.length - 1) != 'x') return str.substring(1)
+  else if (str.charAt(0) != 'x' && str.charAt(str.length - 1) == 'x') return str.substring(0, str.length - 1)
+  else return str
+}
+/* ---- Given a string, if one or both of the first 2 chars is 'x', return the string without those 'x' chars, and otherwise return the string unchanged.
+  This is a little harder than it looks.
+  withoutX2("xHi") → "Hi"
+  withoutX2("Hxi") → "Hi"
+  withoutX2("Hi") → "Hi" */
+  def withoutX2(str:String):String={
+    if (str == "") return ""
+    else if (str.length == 1 && str.charAt(0) == 'x') return ""
+    else if (str.length == 2 && str.charAt(0) == 'x' && str.charAt(1) == 'x') return ""
+    else if (str.length > 2) if (str.charAt(0) == 'x' & str.charAt(1) != 'x') return str.substring(1)
+    else if (str.charAt(0) != 'x' & str.charAt(1) == 'x') return str.charAt(0) + str.substring(2)
+    else if (str.charAt(0) == 'x' && str.charAt(1) == 'x') return str.substring(2)
+    else return str
+    return str
+  }
+}
